@@ -20,3 +20,30 @@ declare module "next-auth/jwt" {
     role?: string; 
   }
 }
+
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+      role: string;
+      profilePicUrl?: string;
+    };
+  }
+
+  interface User {
+    id: string;
+    role: string;
+    profilePicUrl?: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: string;
+    profilePicUrl?: string;
+  }
+}

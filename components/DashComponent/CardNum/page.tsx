@@ -86,66 +86,58 @@ const CardNum = () => {
            ) :
  */}
 
-
-      <motion.div 
+       <motion.div 
         initial={{opacity:0,y:-50}}
         animate={{opacity:1,y:0}}
         transition={{duration:1}} 
        className='p-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-4 mt-4'>
-       <motion.div variants={fadeInAnimationsVariants}
-   initial="initial" whileInView="animate"
-  //  viewport={{once:true}}
-   custom={5}>
-          <Card className='text-center text-blue-600'><Grip className='' />
-            <CardHeader className='flex justify-center items-center'>
+      <div className="shadow-md justify-evenly bg-white flex gap-4 rounded-lg p-4">
+      <div className='flex justify-center items-center'>
               <Image src={Reportsvg} alt='repo' width={60} height={60} />
-            </CardHeader>
-            <CardTitle className='text-6xl '>{reponum}
+            </div>
+      <div className='text-xl font-medium text-center'>{reponum}
               <p className='text-lg '>Reports</p>
               <CardDescription className='font-medium'>written</CardDescription>
-            </CardTitle>
-            <CardContent>
-            </CardContent>
-          </Card>
-          </motion.div>
-        
+            </div>
+      <div className='flex text-end'><Grip className='' /></div>
+      </div>
 
-
-       <motion.div variants={fadeInAnimationsVariants}
-   initial="initial" whileInView="animate"
-  //  viewport={{once:true}}
-   custom={5}>
-          <Card className='text-center text-yellow-600 '><Grip className='' />
-            <CardHeader className='flex justify-center items-center'>
-              <Image src={filesvg} alt='repo' width={60} height={60} />
-            </CardHeader>
-            <CardTitle className='text-6xl '>{filenum}
+      <div className="shadow-md justify-evenly bg-white flex gap-4 rounded-lg p-4">
+      <div className='flex justify-center items-center'>
+             <Image src={filesvg} alt='repo' width={60} height={60} />
+            </div>
+      <div className='text-xl font-medium text-center'>{reponum}
               <p className='text-lg '>Files</p>
-              <CardDescription className='font-medium'>uploaded</CardDescription>
-            </CardTitle>
-            <CardContent>
-            </CardContent>
-          </Card>
-        </motion.div>
+              <CardDescription className='font-medium'>written</CardDescription>
+            </div>
+      <div className='flex text-end'><Grip className='' /></div>
+      </div>
 
-        <motion.div variants={fadeInAnimationsVariants}
-   initial="initial" whileInView="animate"
-  //  viewport={{once:true}}
-   custom={5}>
-          <Card className='text-center text-violet-600 '><Grip className='' />
-            <CardHeader className='flex justify-center items-center'>
-              <Image src={inboxsvg} alt='repo' width={60} height={60} />
-            </CardHeader>
-            <CardTitle className='text-6xl '>{inboxnum}
+      <div className="shadow-md justify-evenly bg-white flex gap-4 rounded-lg p-4">
+      <div className='flex justify-center items-center'>
+      <Image src={eventsvg} alt='repo' width={60} height={60} />
+            </div>
+      <div className='text-xl font-medium text-center'>{reponum}
+              <p className='text-lg '>Events</p>
+              <CardDescription className='font-medium'>written</CardDescription>
+            </div>
+      <div className='flex text-end'><Grip className='' /></div>
+      </div>
+
+      <div className="shadow-md justify-evenly bg-white flex gap-4 rounded-lg p-4">
+      <div className='flex justify-center items-center'>
+      <Image src={inboxsvg} alt='repo' width={60} height={60} />
+            </div>
+      <div className='text-xl font-medium text-center'>{reponum}
               <p className='text-lg '>Inbox</p>
-              <CardDescription className='font-medium'>received</CardDescription>
-            </CardTitle>
-            <CardContent>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </motion.div>
-            {/* } */}
+              <CardDescription className='font-medium'>written</CardDescription>
+            </div>
+      <div className='flex text-end'><Grip className='' /></div>
+      </div>
+      
+   </motion.div>
+
+   
 
 
             <div className='m-4'>

@@ -131,7 +131,7 @@ const ProfilePage = () => {
                   )}
                 </div>
             <div className="justify-center text-center align-middle" style={{alignContent:"center"}}>
-            <p className='text-3xl text-black font-semibold'>
+            <p className='text-2xl text-black font-semibold'>
             {userProfile.firstName} {userProfile.lastName}
             </p>
           <p className="mx-10 text-slate-800 font-light">
@@ -144,11 +144,11 @@ const ProfilePage = () => {
         </div>
 
         <div className="p-14 bg-white">
-      <div className="bg-slate-100 p-4 rounded-lg align-middle justify-center flex">
-          <div className="bg-white my-4 p-4 rounded-xl w-2/3">
-          <h3 className="text-2xl font-medium my-4">My Profile</h3>
+      <div className="bg-white p-4 rounded-lg align-middle justify-center flex">
+          <div className="bg-slate-100 my-4 p-4 rounded-xl w-2/3">
+          <h3 className="text-3xl font-medium my-4 border-b-2">My Profile</h3>
           {isEditing ? (
-      <div className='p-8'>
+      <div className='p-6'>
       <div className="mb-4">
         <Label htmlFor="birthday">Birthday</Label>
         <Input
@@ -235,8 +235,10 @@ const ProfilePage = () => {
           className="w-full p-2 border border-gray-300 rounded"
         />
       </div>
+      <div className="text-center">
       <Button onClick={handleSave} className="mr-2">Save</Button>
       <Button onClick={() => setIsEditing(false)}>Cancel</Button>
+      </div>
     </div>
   ) : (
             <div className='p-8 flex flex-col'>

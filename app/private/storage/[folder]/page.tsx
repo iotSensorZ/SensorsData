@@ -1,15 +1,15 @@
-// app/storage/[folder]/page.tsx
 "use client";
+
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
-import { FaTrash } from '@react-icons/all-files/fa/FaTrash';
-import { FaFolder } from '@react-icons/all-files/fa/FaFolder';
-import { FaEdit } from '@react-icons/all-files/fa/FaEdit';
-import { Button } from '@/components/ui/button';
-import { useRouter, useParams } from 'next/navigation';
+import axios from 'axios';
+import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
-import { CardFooter, CardHeader } from '@/components/ui/card';
+import { FaTrash } from "@react-icons/all-files/fa/FaTrash";
+import { FaDownload } from "@react-icons/all-files/fa/FaDownload";
+import { FaCloudUploadAlt } from "@react-icons/all-files/fa/FaCloudUploadAlt";
+import { useUser } from '@/context/UserContext';
 import { motion } from "framer-motion"
+import { FaFileAlt } from "@react-icons/all-files/fa/FaFileAlt";
 
 
 const fadeInAnimationsVariants={
@@ -27,45 +27,124 @@ const fadeInAnimationsVariants={
 )
 }
 
-const FolderPage = () => {
+const FolderPage = ({ params }: { params: { folder: string } }) => {
   const [files, setFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const params = useParams();
-  const folder = Array.isArray(params.folder) ? params.folder[0] : params.folder; // Ensure folder is a string
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { user } = useUser(); 
+  const folderName = params.folder; 
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center mt-4">
-        <div className="loader border-t-4 border-blue-500 border-solid rounded-full w-8 h-8 animate-spin"></div>
-      </div>
-    );
-  }
+  console.log("mila", user ? user.id : 'User not loaded yet');
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+  const fetchFiles = async () => {
+    if (!user || !user.id) { 
+      console.error("User not found or missing _id");
+      return;
+    }
 
-  const handleEdit = (id: string) => {
-    router.push(`/edit/${id}`);
+    console.log("User object before API call:", user);  // Debugging log
+    console.log("Using user._id for request:", user.id); // Debugging log
+
+    try {
+      const response = await axios.get(`/api/files?userId=${user.id}&folder=${folderName}`);
+      console.log("API response data:", response.data); // Debugging log
+      setFiles(response.data.files);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+      toast.error('Error fetching files');
+      setError("Failed to fetch files.");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchFiles();
+  }, [user, folderName]);
+
+  const handleDeleteFile = async (fileId: string) => {
+    try {
+      await axios.delete(`/api/files?id=${fileId}`);
+      setFiles(files.filter(file => file._id !== fileId));
+      toast.success('File deleted successfully');
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      toast.error('Failed to delete file');
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    console.log("upload ke andr")
+    if (!selectedFile || !user) {
+      toast.error('No file selected or user not authenticated');
+      return;
+    }
+  
+    const folderId = folderName; // This should now be the ObjectId of the folder
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('userId', user.id);
+    formData.append('folder', folderId); 
+
+    // Debugging logs
+    console.log("FormData being sent:", {
+      file: selectedFile,
+      userId: user.id,
+      folder: folderId,
+    });
+  
+    try {
+      console.log("try ke andr")
+      const response = await axios.post('/api/files', formData);
+      console.log("response?")
+      toast.success('File uploaded successfully');
+      setSelectedFile(null);
+      fetchFiles(); // Refresh the file list
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast.error('Failed to upload file');
+    }
+  };
+  
+
+
+  // if (loading) {
+  //   return <div className="text-center">Loading...</div>;
+  // }
+
+  if (error) {
+    return <div className="text-center text-red-600">{error}</div>;
+  }
 
   return (
     <div className="">
-             <motion.div variants={fadeInAnimationsVariants}
+           <motion.div variants={fadeInAnimationsVariants}
     initial="initial" whileInView="animate"
     viewport={{once:true}}
     custom={2} className="relative overflow-hidden flex  px-10 py-10 md:p-10 bg-slate-200 text-black">
         <div className="flex flex-col  mx-auto w-full">
           <div>
             <h3 className="scroll-m-20 border-b pb-2 text-3xl font-bold tracking-tight first:mt-0">
-             {folder}
+            {folderName}
             </h3>
           </div>
         </div>
       </motion.div>
+
+      <div className='m-5 text-center justify-end flex align-middle items-center gap-1'>
+          <input type="file" onChange={handleFileChange} />
+          <Button onClick={handleUpload} variant="blue">
+            <FaCloudUploadAlt /> Upload
+          </Button>
+        </div>
 
 
       <motion.div variants={fadeInAnimationsVariants}
@@ -73,34 +152,32 @@ const FolderPage = () => {
     viewport={{once:true}}
     custom={10} className="p-4">
 
-      {/* <FileUpload folder={folder} onUploadComplete={fetchFiles}/> */}
       <div className="p-4 rounded-xl font-medium grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4  bg-slate-200">
         {files.map((file) => (
-            <Card key={file.id} className='bg-white'>
-              <CardHeader>
-                <CardTitle><p className='font-medium'>{file.name}</p></CardTitle>
-              </CardHeader>
-
-              <CardFooter className=" mt-3 flex justify-between ">
-                <Button variant='purple' className="mt-2">
-                <a href={file.url} target="_blank" rel="noopener noreferrer">
-                      Download
-                    </a>
+            <div key={file._id} className="p-4 bg-white shadow-md rounded-lg items-center justify-between">
+              <div className="flex justify-center items-center text-slate-300 text-7xl text-right">
+            <FaFileAlt  />
+            </div>
+            <div className=" mt-2 text-center">
+            <span className=" text-slate-700">{file.name}</span>  
+            </div>
+            <div className="flex justify-between mt-4">
+              <a href={file.url} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline">
+                  <FaDownload />
                 </Button>
-                <Button className="hover:bg-slate-600 mt-2"
-                //  onClick={() => handleDelete(file.id, file.name)}
-                 >
-                    <FaTrash />
-                </Button>
-              </CardFooter>
-            </Card>
+              </a>
+              <Button variant="outline" onClick={() => handleDeleteFile(file._id)}>
+                <FaTrash />
+              </Button>
+            </div>
+          </div>
         ))}
         {files.length==0&&<p className='text-slate-500'> No files uploaded </p>}
       </div>
     </motion.div>
 
-</div>
-
+    </div>
   );
 };
 

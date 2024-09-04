@@ -1,34 +1,45 @@
-import { Folder } from "@/models/Folder";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from 'next/server';
+import connectDB from '@/lib/db';
+import { Folder } from '@/models/Folder';
 
+connectDB();
 
-export default async function handler(req:NextApiRequest,res:NextApiResponse){
-    const {method} = req; 
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url); 
+  const userId = searchParams.get("userId");
 
-    switch(method){
-        case 'GET':
-            try{
-                const {userId} = req.query;
-                const folders = await Folder.find({userId});
-                res.status(200).json(folders);
-            }catch(error){
-                res.status(500).json({message:"error fetching"});
-            }
-            break;
+  if (!userId) {
+    return NextResponse.json({ message: "User ID is required" }, { status: 400 });
+  }
 
-        case 'POST':
-            try{
-                const {userId,folderName} = req.body;
-                const folder = new Folder({userId,name:folderName});
-                await folder.save();
-                res.status(201).json(folder);
-            }catch(error){
-                res.status(500).json({message:"error creating folder"});
-            }
-            break;
-        default:
-            res.setHeader('Allow',['GET','POST']);
-            res.status(405).end(`Method ${method} Not allowed`);
-             
+  try {
+    const folders = await Folder.find({ userId });
+    return NextResponse.json({ folders });
+  } catch (error) {
+    console.error("Error fetching folders:", error);
+    return NextResponse.json({ message: "Error fetching folders" }, { status: 500 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json(); 
+    const { userId, folderName } = body;
+
+    if (!userId || !folderName) {
+      return NextResponse.json({ message: "User ID and folder name are required" }, { status: 400 });
     }
+
+    const existingFolder = await Folder.findOne({ userId, name: folderName });
+    if (existingFolder) {
+      return NextResponse.json({ message: "Folder already exists" }, { status: 400 });
+    }
+
+    const folder = new Folder({ userId, name: folderName });
+    await folder.save();
+    return NextResponse.json(folder, { status: 201 });
+  } catch (error) {
+    console.error("Error creating folder:", error);
+    return NextResponse.json({ message: "Error creating folder" }, { status: 500 });
+  }
 }

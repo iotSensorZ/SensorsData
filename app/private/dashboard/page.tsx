@@ -49,29 +49,29 @@ if (!user) {
   return (
     <div className="">
            <div 
-           className="relative overflow-hidden flex px-16 py-20 md:p-16 bg-white text-slate-800">
+           className="relative overflow-hidden flex px-16 py-20 md:p-16 bg-slate-800 text-slate-200">
         <div className="flex flex-col lg:flex-row gap-4 mx-auto w-full">
 <Profile/>
           <div className='flex flex-col gap-4 '>
             <div style={{alignItems:"center"}} className='flex flex-col lg:flex-row justify-between'>
-            <h1 className="scroll-m-20 text-2xl font-bold tracking-tight lg:text-4xl">
+            <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight lg:text-3xl">
               Welcome Back, {user.name} !
             </h1>
             <div className='flex gap-4'>
               <Link href='messanger'>
-          <Button className='justify-end rounded-full gap-2' >
+          <Button variant='outline' className='text-black justify-end rounded-lg gap-2' >
              <Mail />
              Messages</Button>
               </Link>
               <Link href='myprofile'>
-          <Button className='justify-end gap-2' variant='purple'>
+          <Button className='justify-end gap-2' variant='blue'>
             <UserCog/>
             Profile</Button>
               </Link>
             </div>
             </div>
           <div className='flex'>
-            <p className="leading-7 [&:not(:first-child)]:mt-6 text-slate-500">
+            <p className="leading-7 [&:not(:first-child)]:mt-6 text-slate-400">
               Comprehensive analysis of environmental readings, highlighting temperature, humidity, and air quality trends.
             </p>
           </div>

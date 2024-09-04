@@ -27,7 +27,13 @@ interface UserContextType {
         try {
           const response = await axios.get(`/api/user/${session.user.id}`);
           setUser({
-            ...response.data, // Ensure all fields including profilePicUrl are set
+            id: response.data._id, // Map '_id' to 'id'
+            name: `${response.data.firstName} ${response.data.lastName}`,
+            email: response.data.email,
+            role: response.data.role,
+            profilePicUrl: response.data.profilePicUrl,
+            firstName: response.data.firstName,
+            lastName: response.data.lastName,
           });
         } catch (error) {
           console.error("Error fetching user profile:", error);

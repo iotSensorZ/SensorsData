@@ -1,5 +1,5 @@
-// components/FileUpload.tsx
-"use client";
+// components/StorageComponent/FileUpload/page.tsx
+'use client';
 import { useState } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';

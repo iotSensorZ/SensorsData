@@ -25,7 +25,6 @@ const Profile = () => {
           className="rounded-full h-10 w-10"
         />
       )}
-      {user?.name && <span>{user.name}</span>}
     </div>
   );
 };
