@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
 
 export async function POST(req: Request) {
+  let browser;
   try {
     const { htmlContent } = await req.json();
 
@@ -9,11 +10,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'HTML content is required' }, { status: 400 });
     }
 
-    const browser = await puppeteer.launch();
+    browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
     const page = await browser.newPage();
-    await page.setContent(htmlContent);
-
-    const pdfBuffer = await page.pdf({ format: 'A4' });
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' })
+    const pdfBuffer = await page.pdf({ format: 'A4',
+      margin: {
+        top: '15mm',
+        right: '15mm',
+        bottom: '15mm',
+        left: '15mm',
+      },
+     });
 
     await browser.close();
 

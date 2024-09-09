@@ -137,37 +137,37 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({children}) => {
           </span>
           </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/mycalendar')}`}>
-            <Link href="/mycalendar" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/mycalendar')}>
+            <Link href="/private/mycalendar" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/mycalendar')}>
                   <FaCalendarAlt className="mr-2" />
                   {isSidebarOpen && "My Calendar"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/inbox')}`}>
-            <Link href="/inbox"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/inbox')}>
+            <Link href="/private/inbox"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/inbox')}>
                   <FaInbox className="mr-2" />
                   {isSidebarOpen && "My Inbox"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/messanger')}`}>
-            <Link href="/messanger"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/messanger')}>
+            <Link href="/private/messanger"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/messanger')}>
                   <FaRocketchat className="mr-2" />
                   {isSidebarOpen && "Messanger"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/contacts')}`}>
-            <Link href="/contacts"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/contacts')}>
+            <Link href="/private/contacts"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/contacts')}>
                   <FaPhone className="mr-2" />
                   {isSidebarOpen && "Contacts"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-centerss ${isLinkActive('/notes')}`}>
-            <Link href="/notes"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/notes')}>
+            <Link href="/private/notes"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/notes')}>
                   < FaRegWindowRestore className="mr-2" />
                   {isSidebarOpen && "Notes"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/tasks')}`}>
-            <Link href="/tasks"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/tasks')}>
+            <Link href="/private/tasks"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/tasks')}>
                   <FaTasks className="mr-2" />
                   {isSidebarOpen && "Tasks"}
               </Link>
@@ -235,27 +235,27 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({children}) => {
         <header className="bg-white shadow p-4 flex justify-between items-center z-50">
           {/* <div className="text-lg font-medium text-slate-600">Welcome, {userName}</div> */}
           <div className="hidden md:flex lg:flex items-center gap-2 text-xl text-slate-500 border border-slate-200">
-          <Link href='/' className='p-2 hover:bg-slate-200'>
+          <Link href='/private/dashboard' className='p-2 hover:bg-slate-200'>
           <FaHome/>
           </Link>
-          <Link href='/storage' className='p-2 hover:bg-slate-200'>
+          <Link href='/private/storage' className='p-2 hover:bg-slate-200'>
           <FaUsers/>
           </Link>
-          <Link href='/mycalendar' className='p-2 hover:bg-slate-200'>
+          <Link href='/private/mycalendar' className='p-2 hover:bg-slate-200'>
           <FaCalendarAlt/>
           </Link>
-          <Link href='/writereport' className='p-2 hover:bg-slate-200'>
+          <Link href='/private/writereport' className='p-2 hover:bg-slate-200'>
           <FaFileSignature/>
           </Link>
-          <Link href='/reports' className='p-2 hover:bg-slate-200'>
+          <Link href='/private/reports' className='p-2 hover:bg-slate-200'>
           <FaFileAlt/>
           </Link>
-          <Link href='/resources' className='p-2 hover:bg-slate-200'>
+          <Link href='/private/resources' className='p-2 hover:bg-slate-200'>
           <Globe/>
           </Link>
             </div>
           <div className="flex justify-end items-center gap-4 border border-slate-200">
-          <Link href='/messanger' className='p-2 hover:bg-slate-200'>
+          <Link href='/private/messanger' className='p-2 hover:bg-slate-200'>
           <div 
             className='p-2 hover:bg-slate-200 flex text-xl' 
             // onClick={resetUnreadCount}

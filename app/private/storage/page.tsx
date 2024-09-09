@@ -30,7 +30,7 @@ const StoragePage = () => {
         whileInView="animate"
         viewport={{ once: true }}
         custom={10}
-        className="relative overflow-hidden flex px-10 py-10 md:p-10 bg-slate-200 text-black"
+        className="relative overflow-hidden flex px-10 py-10 md:p-10 bg-slate-800 text-white"
       >
         <div className="flex flex-col mx-auto w-full">
           <div>
@@ -39,7 +39,7 @@ const StoragePage = () => {
             </h3>
           </div>
           <div>
-            <p className="leading-7 text-slate-600 font-semibold">Your personal storage space</p>
+            <p className="leading-7 text-slate-400 font-semibold">Your personal storage space</p>
           </div>
         </div>
       </motion.div>

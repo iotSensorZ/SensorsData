@@ -129,10 +129,10 @@ const FolderPage = ({ params }: { params: { folder: string } }) => {
            <motion.div variants={fadeInAnimationsVariants}
     initial="initial" whileInView="animate"
     viewport={{once:true}}
-    custom={2} className="relative overflow-hidden flex  px-10 py-10 md:p-10 bg-slate-200 text-black">
+    custom={2} className="relative overflow-hidden flex  px-10 py-10 md:p-10 bg-slate-800 text-white">
         <div className="flex flex-col  mx-auto w-full">
           <div>
-            <h3 className="scroll-m-20 border-b pb-2 text-3xl font-bold tracking-tight first:mt-0">
+            <h3 className="scroll-m-20 pb-1 text-3xl font-bold tracking-tight first:mt-0">
             {folderName}
             </h3>
           </div>

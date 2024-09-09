@@ -1,5 +1,6 @@
-"use client";
-import QuillEditor from "@/components/Quill/page";
+'use client'
+import MapComponent from '@/components/MapComponent/page'
+import React from 'react'
 import { motion } from "framer-motion"
 
 const fadeInAnimationsVariants={
@@ -16,11 +17,10 @@ const fadeInAnimationsVariants={
   }
 )
 }
-
-const WriteReportPage = () => {
+const resources = () => {
   return (
     <>
-    <motion.div
+      <motion.div
         variants={fadeInAnimationsVariants}
         initial="initial"
         whileInView="animate"
@@ -31,19 +31,19 @@ const WriteReportPage = () => {
         <div className="flex flex-col mx-auto w-full">
           <div>
             <h3 className="scroll-m-20 border-b pb-2 text-3xl font-bold tracking-tight first:mt-0">
-            Write Your Report
+            Our Resources
             </h3>
           </div>
           <div>
-            <p className="leading-7 text-slate-400 font-semibold">            Your personal report space
-            </p>
+            <p className="leading-7 text-slate-400 font-semibold">Geographically distributed</p>
           </div>
         </div>
       </motion.div>
-    <QuillEditor/>
+    <div className='m-2'>
+    <MapComponent/>
+</div>
     </>
+  )
+}
 
-  );
-};
-
-export default WriteReportPage;
+export default resources
