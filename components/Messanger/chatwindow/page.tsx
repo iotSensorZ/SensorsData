@@ -1,11 +1,14 @@
+// ChatWindow.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { FaRegSmile } from '@react-icons/all-files/fa/FaRegSmile';
 import { Button } from '@/components/ui/button';
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import Image from 'next/image';
 import Avatar from '@/public/images/avatar.jpg';
+import io, { Socket } from 'socket.io-client';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import Loading from "@/public/images/spinner.gif"
+import { FaRegSmile } from '@react-icons/all-files/fa/FaRegSmile';
+
 
 interface User {
   _id: string;
@@ -30,83 +33,69 @@ interface ChatWindowProps {
 const ChatWindow: React.FC<ChatWindowProps> = ({ currentUser, selectedUser }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const socket = useRef<Socket | null>(null);
   const [emoji, setEmoji] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState<boolean>(false); 
-  const [cachedMessages, setCachedMessages] = useState<{ [key: string]: Message[] }>({});
-  const fetchMessages = async (forceUpdate = false) => {
+  
+  
+  useEffect(() => {
+    socket.current = io('http://localhost:3001');
+
+    socket.current.on('receive-message', (message: Message) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    return () => {
+      socket.current?.disconnect();
+    };
+  }, []);
+
+
+  const fetchMessages = async () => {
     const chatId = [currentUser.id, selectedUser._id].sort().join('_');
-  
-    if (!forceUpdate && cachedMessages[chatId]) {
-      setMessages(cachedMessages[chatId]);  // Load from cache
-      return;
-    }
-  
-    setLoading(true);
     try {
       const response = await axios.get(`/api/chat/${chatId}`);
-      const newMessages = response.data.length === 0 ? [] : response.data;
-      setMessages(newMessages);
-  
-      if (!forceUpdate) {
-        setCachedMessages((prev) => ({ ...prev, [chatId]: newMessages }));  // Cache the messages
-      }
+      setMessages(response.data);
     } catch (error) {
       console.error('Error fetching messages:', error);
-    } finally {
-      setLoading(false);
     }
   };
-  
+
   useEffect(() => {
-    if (selectedUser) {
-      setMessages([]); // Clear previous messages
-      fetchMessages(); // Fetch new messages for the selected user
-    }
+    fetchMessages();
   }, [selectedUser]);
-  
-  // Polling to fetch messages every 5 seconds
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     fetchMessages(true); // Re-fetch messages every 5 seconds, bypassing cache
-  //   }, 5000);
-  
-  //   return () => clearInterval(interval); // Cleanup on component unmount
-  // }, [currentUser.id, selectedUser._id]);
-  
-  // Scroll chat to the bottom whenever messages change
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
-  }, [messages]);
-  
+
+
+
+  // Sending new message
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
-  
     const chatId = [currentUser.id, selectedUser._id].sort().join('_');
-    const optimisticMessage = {
+
+    const message:Message = {
       senderId: currentUser.id,
       receiverId: selectedUser._id,
       text: newMessage,
       createdAt: new Date().toISOString(),
-      isRead:false,
+      isRead:false
     };
-  
-    setMessages((prevMessages) => [...prevMessages, optimisticMessage]);
-    setNewMessage('');  // Clear the input field
-  
+
+    
+    // Optimistic UI update
+    setMessages((prevMessages) => [...prevMessages, message]);
+    setNewMessage(''); 
+    // Emit the message via Socket.IO
+    // socket.current?.emit('send-message', message);
     try {
-      await axios.post(`/api/chat/${chatId}/messages`, optimisticMessage);
-      fetchMessages(true);  // Force update to refresh messages after sending
+      await axios.post(`/api/chat/${chatId}/messages`, message);
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
-  
 
-  // Handle emoji picker visibility
+
+    // Handle emoji picker visibility
   const handleEmojiClick = (emojiData: EmojiClickData) => {
     setNewMessage((prevMessage) => prevMessage + emojiData.emoji);
     setEmoji(false);
@@ -127,49 +116,38 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ currentUser, selectedUser }) =>
         </div>
       </div>
 
-      <div className="flex-grow p-4 overflow-y-auto mb-28" ref={chatContainerRef} style={{ scrollbarWidth: 'none' }}>
-       
-
-      {loading ? (
-            <div className="flex justify-center items-center mt-4">
-            <Image src={Loading} alt='' width={200} height={200}
-            />
+      <div className="flex-grow p-4 overflow-y-auto mb-28">
+        {messages.length === 0 ? (
+          <p className="text-gray-500">No messages</p>
+        ) : (
+          messages.map((msg, index) => (
+            <div key={index} className={`mb-2 ${msg.senderId === currentUser.id ? 'text-right' : 'text-left'}`}>
+              <div className={`inline-block p-2 rounded ${msg.senderId === currentUser.id ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}>
+                {msg.text}
               </div>
-    ) : messages.length === 0 ? (
-      <p className="text-gray-500"></p>
-    ) : (
-      messages.map((msg, index) => (
-        <div key={index} className={`mb-2 ${msg.senderId === currentUser.id ? 'text-right' : 'text-left'}`}>
-          <div className={`inline-block p-2 rounded ${msg.senderId === currentUser.id ? 'bg-[#4F46E5] text-white' : 'bg-slate-700 text-white'}`}>
-            {msg.text}
-          </div>
-          <div className="text-xs text-gray-500 mt-1">{new Date(msg.createdAt).toLocaleString()}</div>
-        </div>
-      ))
-    )}
-
-
-
-       
-      
+              <div className="text-xs text-gray-500 mt-1">{new Date(msg.createdAt).toLocaleString()}</div>
+            </div>
+          ))
+        )}
       </div>
 
-      {emoji && (
+
+       {emoji && (
         <div ref={emojiPickerRef} className="z-50" style={{ width: 'fit-content' }}>
           <EmojiPicker onEmojiClick={handleEmojiClick} />
         </div>
       )}
-      <div style={{ width: '-webkit-fill-available' }} className="fixed bottom-0 p-2 overflow-hidden bg-gray-200 flex items-center gap-5">
-        <button onClick={() => setEmoji(!emoji)}><FaRegSmile /></button>
+           <div style={{ width: '-webkit-fill-available' }} className="fixed bottom-0 p-2 overflow-hidden bg-gray-200 flex items-center gap-5">
+           <button onClick={() => setEmoji(!emoji)}><FaRegSmile /></button>
         <textarea
-          value={newMessage}
+           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type a message..."
-          className="w-full p-2 border border-gray-300 rounded"
-          rows={1}
-        />
-        <Button variant="purple" onClick={handleSendMessage}>Send</Button>
-      </div>
+           className="w-full p-2 border border-gray-300 rounded"
+           rows={1}
+         />
+         <Button variant="blue" onClick={handleSendMessage}>Send</Button>
+       </div>
     </div>
   );
 };

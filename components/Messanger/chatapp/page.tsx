@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FaRocketchat } from "@react-icons/all-files/fa/FaRocketchat";
-import ChatWindow from '../chatwindow/page';
 import ChatList from '../chatlist/page';
 import { useUser } from '@/context/UserContext';
+import ChatWindow from '../chatwindow/page';
 
 interface User {
   _id: string;

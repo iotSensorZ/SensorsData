@@ -13,11 +13,11 @@ const ClientSideLayout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     //initialise
-    socket = io();
+    // socket = io();
 
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket server with ID:', socket.id);
-    });
+    // socket.on('connect', () => {
+    //   console.log('Connected to WebSocket server with ID:', socket.id);
+    // });
 
     // Remove unwanted attributes added by extensions
     const cleanUpAttributes = () => {
@@ -33,9 +33,9 @@ const ClientSideLayout = ({ children }: { children: React.ReactNode }) => {
     return () =>{ 
 
       clearInterval(intervalId);
-      if(socket){
-        socket.disconnect()
-      }
+      // if(socket){
+      //   socket.disconnect()
+      // }
     } 
   }, []);
 

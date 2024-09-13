@@ -5,6 +5,7 @@ import Navbar from "@/components/ui/auth/Navbar";
 import { SessionProvider } from "next-auth/react";
 import ClientSideLayout from "@/components/ClientLayout/page";
 import { UserProvider } from "@/context/UserContext";
+// import { WebSocketProvider } from "@/context/WebSocketContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,9 +24,11 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning={true}>
 <SessionProvider>
   <UserProvider>
+    {/* <WebSocketProvider> */}
   <ClientSideLayout>
         {children}
   </ClientSideLayout>
+    {/* </WebSocketProvider> */}
   </UserProvider>
 </SessionProvider>
         </body>
