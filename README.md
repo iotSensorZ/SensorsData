@@ -1,36 +1,139 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+# Getting Started
+#### 1. run npm install
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+#### 2. create a .env.local folder in the root directory and paste the code
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+#### 3. Run the development server:
+open first terminal and run 
+npm run dev
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
+#### 4. open second terminal and run
+npx ts-node server.ts
+(the server.ts has socketio integration)
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### overview of mongodb schema
+```
+📦 Database 
+├── 📁 users
+│   ├── userId: ObjectId
+│   ├── name: String
+│   ├── email: String
+│   ├── birthday: String
+│   ├── about: String
+│   ├── bio: String
+│   ├── occupation: String
+│   └── profilePicurl: String (cloudinary)
+│
+├── 📁 documents
+│   ├── _Id: ObjectId
+│   ├── userId: ObjectId (reference to users)
+│   ├── title: String
+│   ├── content: String
+│   ├── isPublic: Date
+│   └── createdAt: Date
+│
+├── 📁 files
+│   ├── fileId: ObjectId
+│   ├── userId: ObjectId (reference to users)
+│   ├── name: String
+│   ├── url: String (cloudinary)
+│   ├── folder: ObjectId (reference to folders)
+│   └── uploadedAt: Date
+ |
+├── 📁 folders
+│   ├── folderId: ObjectId
+│   ├── name: String
+│   ├── userId: ObjectId (reference to users)
+│   └── createdAt: Date
+│
+├── 📁 emails
+│   ├── _id: ObjectId
+│   ├── userId: ObjectId (reference to users)
+│   ├── emails: Array[]
+                 ├── ObjectId
+                 ├── email: String
+                 ├── verified: bool
+                 ├── addedAt: Date
+                 ├── messages: Array[]
+                                   ├── ObjectId  
+                                   ├── sendersemail
+                                   ├── sendersid
+                                   ├── receiversemail
+                                   ├── sentAt
+                                   ├──read
+                                   ├── issentbyme
+├── 📁 contacts
+│   ├── _id: ObjectId
+│   ├── userId: ObjectId (reference to users)
+│   ├── contacts: Array[]
+                 ├── Name
+                 ├── Phone
+                 ├── Email
+                 ├── _id
+│   └── createdAt: Date
+ |
+├── 📁 tasks
+│   ├── taskId: ObjectId
+│   ├── userId: ObjectId (reference to users)
+│   ├── tasks: Array[]
+                ├──title
+                ├──isdone
+                ├──_id
+│   └── createdAt: Date
+│   └── updatedAt: Date
+│
+├── 📁 notes
+│   ├── noteId: ObjectId
+│   ├── userId: ObjectId (reference to users)
+│   ├── notes: Array[]
+                ├──title
+                ├──content
+                ├──labels
+                ├──createdAt
+                ├──_id
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+│
+├── 📁 resources
+│   ├──_Id: ObjectId
+│   ├── name: String
+│   ├── userId: ObjectId (reference to users)
+│   └── createdAt: Date
+│   └── type: String
+│   └── address: String
+│   └── latitude
+│   └── longitude
+│   └── openinghours
+│   └── rating
+│   └── description
+│   └── image
+ |
+├── 📁 events
+│   ├── _Id: ObjectId
+│   ├── name: String
+│   ├── userId: ObjectId (reference to users)
+│   └── createdAt: Date
+│
+ |
+├── 📁 chats   (socketio)
+│   ├── chatId: ObjectId
+│   ├── _id: String
+│   ├── participants: Array[2] ObjectId (reference to users)
+│   └── messages: Array[]
+                      ├── senderId
+                      ├── receiverId
+                      ├── text
+                      ├── isRead
+                      ├── _id
+                      ├── createdAt
+
+```
