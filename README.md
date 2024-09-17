@@ -1,19 +1,20 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 # Getting Started
-#### 1. run npm install
+#### 1. git pull
+#### 2. run npm install
 
-#### 2. create a .env.local folder in the root directory and paste the code
+#### 3. create a .env.local folder in the root directory and paste the code
 ```
 
 ```
 
-#### 3. Run the development server:
+#### 4. Run the development server:
 open first terminal and run 
 npm run dev
 
 
-#### 4. open second terminal and run
+#### 5. open second terminal and run
 npx ts-node server.ts
 (the server.ts has socketio integration)
 
