@@ -20,6 +20,47 @@ npx ts-node server.ts
 
 
 
+## Quick tour
+##### User Flow
+- New Users: Upon accessing the application, new users will be redirected to the Login/Register page.
+
+- Returning Users: If a login session is detected, users will be redirected to the Dashboard.
+
+- My Profile
+User Details: Access your user details say bio,profilepic,address,contact,etc and ensure they are up-to-date.
+
+- Folder Storage\
+Create Folders: Users can enter a folder name to create new folders.\
+File Management: Each folder can have files added to it, ensuring organized storage.
+
+- Write Report\
+Quill Editor: Utilize the integrated Quill editor for rich text report writing.\
+Keyboard Shortcuts: Common shortcuts like Ctrl + X, Y, and Z are supported for efficient editing.\
+Report Listing: Submitted reports will be listed in the Reports section.\
+The visibility option for the report is in progress.
+
+- Map Resources\
+Interactive Map: Hover over and click to view resource details.\
+Resource Management: Navigate to settings to add, edit, or delete resources.
+
+- Calendar Events\
+Event Management: Add events to your calendar seamlessly.
+
+- Inbox\
+Email Management: Users can manage multiple email addresses in the left pane.\
+Send Email: Click the "Send Email" button to compose and send emails.
+
+- Messaging\
+Chat Functionality: Users can chat with others through the messaging feature.
+
+- Contacts\
+Import Contacts: Users need to export their contacts from Google Contacts and upload them to the app.\
+Contact Management: Extracted contacts can be edited or deleted.
+
+- Notes and Tasks\
+Individual Features: Notes and tasks are separate features for better organization.
+
+
 
 
 ### overview of mongodb schema
