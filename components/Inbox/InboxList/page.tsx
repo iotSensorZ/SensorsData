@@ -49,10 +49,10 @@ const InboxList: React.FC = () => {
       </div>
     
       <button
-        className="fixed bottom-4 right-4 bg-blue-500 text-white p-6 rounded-full shadow-lg hover:bg-blue-700"
+        className="fixed gap-2 flex bottom-4 right-4 bg-blue-500 text-white p-3 rounded-lg shadow-lg hover:bg-blue-700"
         onClick={openModal}
       >
-        <FaMailBulk className='text-lg' />
+        <FaMailBulk className='text-lg' />Send Email
       </button>
       <EmailModal isOpen={isModalOpen} closeModal={closeModal} />
       <motion.div variants={fadeInAnimationsVariants}
