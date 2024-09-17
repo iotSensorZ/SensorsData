@@ -27,6 +27,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     if (!updatedUser) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
+    console.log("upda",updatedUser)
     return NextResponse.json(updatedUser, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: 'Error updating user data', error }, { status: 500 });

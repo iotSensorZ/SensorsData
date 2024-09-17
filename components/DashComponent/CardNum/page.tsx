@@ -14,6 +14,7 @@ import { motion } from "framer-motion"
 import { Button } from '@/components/ui/button';
 import { Mail } from 'lucide-react';
 import { UserCog } from 'lucide-react';
+import { useSession } from "next-auth/react";
 import {
     Table,
     TableBody,
@@ -23,6 +24,12 @@ import {
     TableRow,
   } from "@/components/ui/table";
 import Link from 'next/link';
+import EmailModal from '@/components/Email/EmailModal/page';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { FaRegFolderOpen } from '@react-icons/all-files/fa/FaRegFolderOpen';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
 const CardNum = () => {
   const [reports, setReports] = useState<any[]>([]);
   const [files, setFiles] = useState<any[]>([]);
@@ -38,11 +45,24 @@ const CardNum = () => {
   // const [userName, setUserName] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   // const [userProfile, setuserProfile] = useState('')
-
+  const [folders, setFolders] = useState<any[]>([]); // Updated type to `any[]` to reflect folder objects
   const [userName, setUserName] = useState<string | null>(() => localStorage.getItem('userName'));
   const [userProfile, setuserProfile] = useState<string | null>(() => localStorage.getItem('userProfile'));
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const router = useRouter();
+  const [filteredReports, setFilteredReports] = useState<Report[]>([]);
 
+  const { data: session,status } = useSession();
+
+
+  interface Report {
+    _id: string; 
+    title: string;
+    createdAt: string;
+    isPublic: boolean;
+    userId: string;
+    url: string;
+  }
 
   const fadeInAnimationsVariants={
     initial:{
@@ -62,6 +82,56 @@ const CardNum = () => {
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+
+  const fetchFolders = async () => {
+    if (!session?.user?.id) {
+        console.error("User ID is undefined");
+        return;
+      }
+    try {
+      const response = await axios.get(`/api/folders?userId=${session?.user.id}`);
+      setFolders(response.data.folders); 
+      console.log("Fetched folders:", response.data.folders);
+    } catch (error) {
+      console.error("Error fetching folders:", error);
+      toast.error("Error fetching folders");
+    }
+  };
+
+  useEffect(() => {
+    if (status === "authenticated") { 
+      console.log("Session data in FolderList:", session); 
+      fetchFolders();
+    }
+  }, [session, status]);
+
+  const handleFolderClick = (folderName: string) => {
+    router.push(`/private/storage/${folderName}`);
+  };
+
+
+  const {user} = useUser();
+
+  useEffect(() => {
+  
+    if (user) { // Ensure user is not null
+      const fetchReports = async () => {
+        try {
+          const response = await axios.get('/api/documents');
+          setReports(response.data.reports);
+          console.log("user",user.id)
+          console.log("user",response.data.reports)
+        //   user && user.id === report.ownerId 
+          setFilteredReports(response.data.reports);
+        } catch (error) {
+          console.error('Error fetching reports:', error);
+        }
+      };
+
+      fetchReports();
+    }
+  }, [user]);
 
 
   return (
@@ -147,47 +217,78 @@ const CardNum = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Plan</TableHead>
-                      <TableHead>Date</TableHead>
+                      <TableHead className='text-center'>Folders</TableHead>
+                      <TableHead className='text-center'>Reports</TableHead>
+                      <TableHead className='text-center'>Events</TableHead>
+                      {/* <TableHead>Date</TableHead> */}
                     </TableRow>
                   </TableHeader>
 
-                  <TableBody className='bg-white'>
+                  <TableBody className=''>
+                    <TableRow>
+                  <TableCell>
+                      {folders.map((folder) => (
+                        <div
+                        key={folder._id}  
+                        className="text-center bg-white p-2 m-2 shadow-md rounded-lg cursor-pointer"
+                        onClick={() => handleFolderClick(folder.name)} 
+                        >
+            <span className=" m-2 text-slate-700">{folder.name}</span>  {/* Render folder.name instead of the entire folder object */}
+          </div>
+        ))}
+        </TableCell>
+<TableCell>
+
+{filteredReports.map((report, index) => (
+                        <div
+                        key={index}  
+                        className="text-center bg-white p-2 m-2 shadow-md rounded-lg cursor-pointer"
+                        onClick={() => router.push(`/private/reports/${report._id}`)}
+                        >
+            <span className=" m-2 text-slate-700">{report.title}</span>  {/* Render folder.name instead of the entire folder object */}
+          </div>
+        ))}
+        </TableCell>
+<TableCell>
+
+                      {folders.map((folder) => (
+                        <div
+                        key={folder._id}  
+                        className="text-center bg-white p-2 m-2 shadow-md rounded-lg cursor-pointer"
+                        onClick={() => handleFolderClick(folder.name)} 
+                        >
+            <span className=" m-2 text-slate-700">{folder.name}</span>  {/* Render folder.name instead of the entire folder object */}
+          </div>
+        ))}
+        </TableCell>
+                    </TableRow>
                     <TableRow>
                       <TableCell>John Doe</TableCell>
-                      <TableCell>john@example.com</TableCell>
+                      {/* <TableCell>john@example.com</TableCell> */}
                       <TableCell>Pro</TableCell>
                       <TableCell>2024-04-16</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>John Doe</TableCell>
-                      <TableCell>john@example.com</TableCell>
+                      {/* <TableCell>john@example.com</TableCell> */}
                       <TableCell>Pro</TableCell>
                       <TableCell>2024-04-16</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>John Doe</TableCell>
-                      <TableCell>john@example.com</TableCell>
+                      {/* <TableCell>john@example.com</TableCell> */}
                       <TableCell>Pro</TableCell>
                       <TableCell>2024-04-16</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>John Doe</TableCell>
-                      <TableCell>john@example.com</TableCell>
+                      {/* <TableCell>john@example.com</TableCell> */}
                       <TableCell>Pro</TableCell>
                       <TableCell>2024-04-16</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell>John Doe</TableCell>
-                      <TableCell>john@example.com</TableCell>
-                      <TableCell>Pro</TableCell>
-                      <TableCell>2024-04-16</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>John Doe</TableCell>
-                      <TableCell>john@example.com</TableCell>
+                      {/* <TableCell>john@example.com</TableCell> */}
                       <TableCell>Pro</TableCell>
                       <TableCell>2024-04-16</TableCell>
                     </TableRow>
@@ -203,7 +304,7 @@ const CardNum = () => {
       >
         <FaMailBulk className='text-lg' />
       </button>
-      {/* <EmailModal isOpen={isModalOpen} closeModal={closeModal} /> */}
+      <EmailModal isOpen={isModalOpen} closeModal={closeModal} />
     </div>
   );
 };
