@@ -36,11 +36,11 @@ const FullCalendarScheduler = () => {
   const [currentEmail, setCurrentEmail] = useState<string | 'All'>('All');
   const [userEmails, setUserEmails] = useState<{id: string, email: string}[]>([]);
 
-  // useEffect(() => {
-  //   if (user) {
-  //     fetchUserEmails();
-  //   }
-  // }, [user]);
+  useEffect(() => {
+    if (user) {
+      fetchUserEmails();
+    }
+  }, [user]);
 
   useEffect(() => {
     fetchEvents();
@@ -49,9 +49,12 @@ const FullCalendarScheduler = () => {
   const fetchUserEmails = async () => {
     try {
       if (!user) return;
-      // Replace with your logic to fetch user emails
-      const response = await fetch(`/api/users/${user.id}/emails`);
-      const emails = await response.json();
+      const response = await fetch(`/api/email?userId=${user.id}`);
+          const emails = await response.json();
+          // if (response.ok) {
+          //   setUserEmails(data.emails);
+          // } 
+      // const emails = await response.json();
       setUserEmails([{ id: 'All', email: 'All' }, ...emails]);
     } catch (err) {
       console.error('Error fetching user emails:', err);

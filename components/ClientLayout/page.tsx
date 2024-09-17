@@ -1,17 +1,34 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Navbar from "@/components/ui/auth/Navbar"
 import io, { Socket } from 'socket.io-client';
+import { useSession } from 'next-auth/react';
 
 let socket: Socket;
 
 const ClientSideLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const noLayout = ['/login', '/register', '/changepassword'].includes(pathname);
+  const router = useRouter();
+
+  const { data: session } = useSession();
+
+
+  
+  useEffect(() => {
+    if (session?.user) {
+      router.push("/private/dashboard");
+    }
+  }, [session, router]);
 
   useEffect(() => {
+    if (session?.user) {
+      router.push("/private/dashboard");
+    } else if (!noLayout) {
+      router.push('/login');
+    }
     //initialise
     // socket = io();
 

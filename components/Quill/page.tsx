@@ -209,9 +209,9 @@ const QuillEditor = () => {
           <div className="loader border-t-4 border-blue-500 border-solid rounded-full w-8 h-8 animate-spin"></div>
         </div>
       )}
-      <Button variant="blue" type="button" onClick={handleParaphrase} className="mt-4 text-white py-2 px-4 rounded-md shadow-sm">
+      {/* <Button variant="blue" type="button" onClick={handleParaphrase} className="mt-4 text-white py-2 px-4 rounded-md shadow-sm">
         Generate Suggestions
-      </Button>
+      </Button> */}
     </div>
   
     {suggestions.length > 0 && (
