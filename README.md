@@ -5,9 +5,6 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 #### 2. run npm install
 
 #### 3. create a .env.local folder in the root directory and paste the code
-```
-
-```
 
 #### 4. Run the development server:
 open first terminal and run 
