@@ -188,19 +188,9 @@ const QuillEditor = () => {
   };
 
   return (
-    <div className="quill-editor-container p-4 justify-center align-middle text-center">
-    <Toaster />
-    <div className="flex-1 overflow-hidden p-4 flex justify-center h-screen">
-      <ReactQuill
-        value={editorState}
-        onChange={handleChange}
-        modules={modules}
-        formats={formats}
-        className='bg-white p-20 border rounded-xl'
-        style={{ padding: '20px' }}
-      />
-    </div>
-    <div className="toolbar flex justify-around ">
+    <>
+    
+    <div className="toolbar flex justify-end mx-4 ">
       <Button variant="blue" type="button" onClick={openModal} className="mt-4 text-white py-2 px-4 rounded-md shadow-sm">
         Save Your Report
       </Button>
@@ -213,6 +203,21 @@ const QuillEditor = () => {
         Generate Suggestions
       </Button> */}
     </div>
+
+
+    <div className="quill-editor-container p-4 justify-center align-middle text-center">
+    <Toaster />
+    <div className="flex-1 overflow-hidden p-4 flex justify-center h-screen">
+      <ReactQuill
+        value={editorState}
+        onChange={handleChange}
+        modules={modules}
+        formats={formats}
+        className='bg-white p-20 border rounded-xl'
+        style={{ padding: '20px' }}
+      />
+    </div>
+
   
     {suggestions.length > 0 && (
       <div className="suggestions-container mt-4 shadow-lg rounded-lg p-4">
@@ -295,6 +300,7 @@ const QuillEditor = () => {
       </Dialog>
     </Transition>
   </div>
+  </>
   );
 };
 

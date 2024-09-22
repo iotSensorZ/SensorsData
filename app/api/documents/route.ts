@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import { Document } from '@/models/Document';
 
-// Connect to the database
 connectDB();
 
 export async function GET(req: NextRequest) {
@@ -14,6 +13,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: 'Error fetching reports' }, { status: 500 });
     }
 }
+
+
 export async function POST(req: NextRequest) {
   try {
     const { title, content, userId, isPublic } = await req.json();
@@ -24,8 +25,19 @@ export async function POST(req: NextRequest) {
 
     const newDocument = new Document({ title, content, userId, isPublic });
     await newDocument.save();
+    
 
-    return NextResponse.json({ message: 'Document saved successfully', document: newDocument }, { status: 201 });
+    const documentUrl = `https://yourdomain.com/user/reports/${userId}`; 
+
+
+//     const documentUrl = `${req.nextUrl.origin}/reports/${userId}`;
+console.log('docurl',documentUrl)
+    return NextResponse.json({ 
+      message: 'Document saved successfully', 
+      document: newDocument ,
+      url: documentUrl,
+    }, 
+      { status: 201 });
   } catch (error) {
     console.error('Error saving document:', error);
     return NextResponse.json({ message: 'Error saving document' }, { status: 500 });

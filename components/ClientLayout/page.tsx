@@ -21,7 +21,7 @@ const ClientSideLayout = ({ children }: { children: React.ReactNode }) => {
     if (session?.user) {
       router.push("/private/dashboard");
     }
-  }, [session, router]);
+  }, [router]);
 
   useEffect(() => {
     if (session?.user) {

@@ -6,11 +6,12 @@ import Chat from './models/Chat';  // Ensure the model file exists
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path'
+import UserActivity from './models/UserActivity';
 dotenv.config({ path: path.resolve(__dirname, '.env.local') });
-
-// Initialize Express
+import { debounce } from 'lodash';
 const app = express();
 const server = http.createServer(app);
+
 
 // Enable CORS
 app.use(cors({
@@ -77,6 +78,45 @@ io.on('connection', (socket) => {
     }
   });
 
+
+  // const handleActivityTracking = debounce(async (activityData: ActivityData) => {
+  //   const { userId, pageData } = activityData;
+  
+  //   try {
+  //     const existingActivity = await UserActivity.findOne({ userId });
+  
+  //     if (existingActivity) {
+  //       for (const [pageUrl, data] of Object.entries(pageData)) {
+  //         existingActivity.pageData.set(pageUrl, {
+  //           pageUrl, // Ensure pageUrl is included
+  //           visitCount: (existingActivity.pageData.get(pageUrl)?.visitCount || 0) + data.visitCount,
+  //           buttonClicks: {
+  //             ...existingActivity.pageData.get(pageUrl)?.buttonClicks,
+  //             ...data.buttonClicks,
+  //           },
+  //         });
+  //       }
+  //       await existingActivity.save();
+  //     } else {
+  //       const activity = new UserActivity({
+  //         userId,
+  //         pageData,
+  //       });
+  //       await activity.save();
+  //     }
+  
+  //     console.log('Activity tracked successfully');
+  //   } catch (error) {
+  //     console.error('Error tracking activity:', error);
+  //   }
+  // }, 2000);
+  
+  
+  
+  // socket.on('track-activity', handleActivityTracking);
+  
+  
+  
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });

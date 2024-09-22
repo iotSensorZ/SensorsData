@@ -5,6 +5,7 @@ import Navbar from "@/components/ui/auth/Navbar";
 import { SessionProvider } from "next-auth/react";
 import ClientSideLayout from "@/components/ClientLayout/page";
 import { UserProvider } from "@/context/UserContext";
+import { ActivityTrackerProvider } from "@/context/ActivityTracker";
 // import { WebSocketProvider } from "@/context/WebSocketContext";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -25,9 +26,11 @@ export default function RootLayout({
 <SessionProvider>
   <UserProvider>
     {/* <WebSocketProvider> */}
+    <ActivityTrackerProvider>
   <ClientSideLayout>
         {children}
   </ClientSideLayout>
+    </ActivityTrackerProvider>
     {/* </WebSocketProvider> */}
   </UserProvider>
 </SessionProvider>

@@ -125,6 +125,12 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({children}) => {
                   {isSidebarOpen && "Write Report"}
               </Link>
             </li>
+            <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/codeeditor')}`}>
+            <Link href="/private/codeeditor" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/codeeditor')}>
+                  <FaFileSignature className="mr-2" />
+                  {isSidebarOpen && "Code Editor"}
+              </Link>
+            </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/resources')}`}>
             <Link href="/private/resources" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/resources')}>
                   <Globe className="mr-2" />

@@ -41,8 +41,7 @@ const WriteReportPage = () => {
           </div>
         </div>
       </motion.div>
-      <QuillEditor/>
-    {/* <CodeEditor /> */}
+    <CodeEditor />
     </>
 
   );

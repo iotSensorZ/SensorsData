@@ -63,15 +63,29 @@ const ReportDetailPage: React.FC = () => {
 
   const handleGeneratePdf = async (content: string) => {
     if (content) {
+      const styledContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            pre { white-space: pre-wrap; } /* Preserve whitespace */
+          </style>
+        </head>
+        <body>
+         <pre>${content}</pre>
+        </body>
+      </html>
+    `;
+
       try {
         const response = await axios.post('/api/generatePDF', {
-          htmlContent: content,
+          htmlContent:  styledContent,
         }, {
-          responseType: 'blob', // Important to handle binary data
+          responseType: 'blob', 
         });
         const blob = new Blob([response.data], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
-        setPdfUrl(url); // Set the URL for the generated PDF
+        setPdfUrl(url); 
       console.log("url",url)
       } catch (error) {
         console.error('Error generating PDF:', error);
