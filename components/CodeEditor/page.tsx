@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, Fragment } from 'react';
+import React, { useState, Fragment, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, Transition } from '@headlessui/react';
 import { Toaster, toast } from 'sonner';
@@ -7,6 +7,9 @@ import MonacoEditor from '@monaco-editor/react';
 import Sk from 'skulpt';
 import axios from 'axios';
 import { useUser } from '@/context/UserContext';
+import {io } from 'socket.io-client';
+const socket = io('http://localhost:3001');
+import { useActivityTracker } from '@/context/ActivityTracker';
 
 const CodeEditor = () => {
   const [editorState, setEditorState] = useState('# Write your Python code here...');
@@ -14,6 +17,20 @@ const CodeEditor = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState('');
   const { user } = useUser();
+
+
+  useEffect(() => {
+    console.log("Current user:", user);
+    if(!user)return;
+    console.log("inquill")
+    const activityData = {
+      userId: user.id, 
+      pageUrl: window.location.pathname,
+      buttonClicks: {}, 
+    };
+  
+    socket.emit('track-activity', activityData);
+  }, [user]);
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
@@ -62,6 +79,11 @@ const CodeEditor = () => {
       console.error('Error submitting report:', err);
     } finally {
       closeModal();
+      socket.emit('track-activity', {
+        userId: user.id,
+        pageUrl: '/private/codeeditor',
+        buttonClicks: { 'codereports': 1 },
+      });
     }
   };
   

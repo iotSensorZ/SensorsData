@@ -91,7 +91,8 @@ const CardNum = () => {
       }
     try {
       const response = await axios.get(`/api/folders?userId=${session?.user.id}`);
-      setFolders(response.data.folders); 
+      const folders = response.data.folders;
+      setFolders(folders.slice(0,5)); 
       console.log("Fetched folders:", response.data.folders);
     } catch (error) {
       console.error("Error fetching folders:", error);
@@ -118,12 +119,12 @@ const CardNum = () => {
     if (user) { // Ensure user is not null
       const fetchReports = async () => {
         try {
-          const response = await axios.get('/api/documents');
-          setReports(response.data.reports);
-          console.log("user",user.id)
-          console.log("user",response.data.reports)
+          const response = await axios.get('/api/documents', { params: { userId: user.id } });
+          const allReports = response.data.reports;
+          setReports(allReports);
+
         //   user && user.id === report.ownerId 
-          setFilteredReports(response.data.reports);
+          setFilteredReports(allReports.slice(0,5));
         } catch (error) {
           console.error('Error fetching reports:', error);
         }

@@ -12,6 +12,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { saveAs } from 'file-saver';
 import { useUser } from '@/context/UserContext';
+import {io } from 'socket.io-client';
+const socket = io('http://localhost:3001');
+import { useActivityTracker } from '@/context/ActivityTracker';
+
 
 interface CustomEvent {
   id: string;
@@ -35,6 +39,45 @@ const FullCalendarScheduler = () => {
   const [eventToDelete, setEventToDelete] = useState<EventClickArg | null>(null);
   const [currentEmail, setCurrentEmail] = useState<string | 'All'>('All');
   const [userEmails, setUserEmails] = useState<{id: string, email: string}[]>([]);
+  const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [timeSpent, setTimeSpent] = useState<number>(0); // Initialize with a default value
+
+  useEffect(() => {
+    console.log("Current user:", user);
+    if(!user)return;
+    console.log("incalendar")
+    const activityData = {
+      userId: user.id, 
+      pageUrl: window.location.pathname,
+      buttonClicks: {}, 
+      timeSpent,
+      cursorPosition,
+      lastUpdated,
+    };
+  
+    socket.emit('track-activity', activityData);
+  }, [user,timeSpent, cursorPosition, lastUpdated]); 
+
+
+  useEffect(() => {
+    const startTime = Date.now();
+  
+    const handleMouseMove = (event: MouseEvent) => {
+      setCursorPosition({ x: event.clientX, y: event.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      const endTime = Date.now();
+      const spentTime = endTime - startTime;
+      if (!isNaN(spentTime)) {
+        setTimeSpent(spentTime);
+      } else {
+        console.error('Calculated time spent is NaN');
+      }
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -142,6 +185,14 @@ const FullCalendarScheduler = () => {
         ...data,
         backgroundColor: newEventType === 'event' ? 'blue' : 'green',
         borderColor: newEventType === 'event' ? 'blue' : 'green',
+      });
+      socket.emit('track-activity', {
+        userId: user.id,
+        pageUrl: '/private/calendar',
+        buttonClicks: { 'events': 1 },
+        timeSpent: timeSpent, 
+        cursorPosition, 
+        lastUpdated, 
       });
     } catch (err) {
       console.error('Error adding event:', err);

@@ -5,7 +5,10 @@ import NoteCard from '../NoteCard/page';
 import { Button } from '@/components/ui/button';
 import { motion } from "framer-motion"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-// import { useActivityTracker } from '@/context/ActivityTracker';
+import { useActivityTracker } from '@/context/ActivityTracker';
+import {io, Socket } from 'socket.io-client';
+const socket = io('http://localhost:3001');
+
 
 const fadeInAnimationsVariants = {
   initial: {
@@ -41,11 +44,30 @@ const NotesPage: React.FC = () => {
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
   const [createDialogIsOpen, setCreateDialogIsOpen] = useState(false);
   const { user } = useUser();
-  // const { trackPageView, trackButtonClick } = useActivityTracker();
+  const { trackPageView, trackButtonClick } = useActivityTracker();
+  const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [timeSpent, setTimeSpent] = useState<number>(0); // Initialize with a default value
+
+ 
+  useEffect(() => {
+    if(!user)return;
+    const activityData = {
+      userId: user.id, 
+      pageUrl: window.location.pathname,
+      buttonClicks: {},
+      timeSpent,
+      cursorPosition,
+      lastUpdated,
+    };
+  
+    socket.emit('track-activity', activityData);
+  }, [user, timeSpent, cursorPosition, lastUpdated]);
+  
 
   useEffect(() => {
     const fetchNotes = async () => {
-      if (!user) return; // Only fetch notes if user is defined
+      if (!user) return; 
   
       try {
         const response = await fetch(`/api/notes?userId=${user.id}`);
@@ -56,9 +78,29 @@ const NotesPage: React.FC = () => {
       }
     };
   
-    fetchNotes(); // Fetch notes when the component mounts or user changes
-  }, [user]); // Only depends on user
+    fetchNotes(); 
+  }, [user]);
 
+
+  useEffect(() => {
+    const startTime = Date.now();
+  
+    const handleMouseMove = (event: MouseEvent) => {
+      setCursorPosition({ x: event.clientX, y: event.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      const endTime = Date.now();
+      const spentTime = endTime - startTime;
+      if (!isNaN(spentTime)) {
+        setTimeSpent(spentTime);
+      } else {
+        console.error('Calculated time spent is NaN');
+      }
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+  
   
   const handleAddNote = async () => {
     if (!title.trim() || !content.trim() || !user) {
@@ -96,7 +138,8 @@ const NotesPage: React.FC = () => {
       setContent('');
       setSelectedLabels([]);
       setCreateDialogIsOpen(false);
-      // trackButtonClick('Add Note');
+      setLastUpdated(new Date()); 
+      trackButtonClick('Add Note');
     } catch (error) {
       console.error('Error adding note:', error);
     }
@@ -129,7 +172,8 @@ const NotesPage: React.FC = () => {
       const updatedNote = await response.json();
       setNotes(prevNotes => prevNotes.map(note => note._id === updatedNote._id ? updatedNote : note));
       closeDialog();
-      // trackButtonClick('Update Note');
+      setLastUpdated(new Date()); 
+      trackButtonClick('Update Note');
     } catch (error) {
       console.error("Error updating note:", error);
     }

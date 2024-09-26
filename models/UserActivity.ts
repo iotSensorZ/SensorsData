@@ -1,4 +1,4 @@
-// models/UserActivity.ts
+
 import mongoose from 'mongoose';
 
 const userActivitySchema = new mongoose.Schema({
@@ -9,6 +9,12 @@ const userActivitySchema = new mongoose.Schema({
       pageUrl: { type: String, required: true },
       visitCount: { type: Number, default: 0 },
       buttonClicks: { type: Map, of: Number, default: {} },
+      cursorPosition: { 
+        x: { type: Number, default: 0 }, 
+        y: { type: Number, default: 0 }
+      },
+      timeSpent: { type: Number, default: 0 }, // in milliseconds
+      lastUpdated: { type: Date, default: Date.now },
     }),
   },
   createdAt: { type: Date, default: Date.now },

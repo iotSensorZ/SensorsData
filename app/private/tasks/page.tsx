@@ -8,6 +8,9 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'react-toastify';
 import { motion } from "framer-motion";
 import { useUser } from '@/context/UserContext';
+import {io } from 'socket.io-client';
+const socket = io('http://localhost:3001');
+import { useActivityTracker } from '@/context/ActivityTracker';
 
 const fadeInAnimationsVariants = {
   initial: {
@@ -34,6 +37,49 @@ const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState<string>('');
   const { user } = useUser();
+  const { trackPageView, trackButtonClick } = useActivityTracker();
+  const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [timeSpent, setTimeSpent] = useState<number>(0); // Initialize with a default value
+
+
+  useEffect(() => {
+    console.log("Current user:", user);
+    if(!user)return;
+    console.log("intasks")
+    const activityData = {
+      userId: user.id, // Ensure you're passing just the user ID string
+      pageUrl: window.location.pathname,
+      buttonClicks: {},
+      timeSpent,
+      cursorPosition,
+      lastUpdated,
+    };
+  
+    socket.emit('track-activity', activityData);
+  }, [user,timeSpent, cursorPosition, lastUpdated]); 
+  
+
+
+  useEffect(() => {
+    const startTime = Date.now();
+  
+    const handleMouseMove = (event: MouseEvent) => {
+      setCursorPosition({ x: event.clientX, y: event.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      const endTime = Date.now();
+      const spentTime = endTime - startTime;
+      if (!isNaN(spentTime)) {
+        setTimeSpent(spentTime);
+      } else {
+        console.error('Calculated time spent is NaN');
+      }
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+  
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -105,6 +151,16 @@ console.log("res",response)
         console.log("Response data:", data);
         setTasks(data); // Assuming `data` is the updated tasks array
         setNewTaskTitle('');
+        setLastUpdated(new Date()); 
+
+        socket.emit('track-activity', {
+          userId: user.id,
+          pageUrl: '/private/tasks',
+          buttonClicks: { 'Add Task': 1 },
+          timeSpent: timeSpent, 
+          cursorPosition, 
+          lastUpdated, 
+        });
     } catch (error) {
         toast.error('Failed to add task');
         console.error('Error adding task: ', error);

@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, Fragment } from 'react';
+import React, { useState, Fragment, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,9 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'; // Import pdf-lib
 import { htmlToText } from 'html-to-text';
 import { Dialog, Transition } from '@headlessui/react';
 import { useUser } from '@/context/UserContext';
+import {io } from 'socket.io-client';
+const socket = io('http://localhost:3001');
+import { useActivityTracker } from '@/context/ActivityTracker';
 
 // Custom toolbar for Quill
 const modules = {
@@ -46,6 +49,50 @@ const QuillEditor = () => {
   const { user } = useUser();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false); // State for modal
+  const { trackPageView, trackButtonClick } = useActivityTracker();
+  const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [timeSpent, setTimeSpent] = useState<number>(0); // Initialize with a default value
+
+
+  useEffect(() => {
+    console.log("Current user:", user);
+    if(!user)return;
+    console.log("inquill")
+    const activityData = {
+      userId: user.id, 
+      pageUrl: window.location.pathname,
+      buttonClicks: {}, 
+      timeSpent,
+      cursorPosition,
+      lastUpdated,
+    };
+  
+    socket.emit('track-activity', activityData);
+  }, [user,timeSpent, cursorPosition, lastUpdated]); 
+
+
+  useEffect(() => {
+    const startTime = Date.now();
+  
+    const handleMouseMove = (event: MouseEvent) => {
+      setCursorPosition({ x: event.clientX, y: event.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      const endTime = Date.now();
+      const spentTime = endTime - startTime;
+      if (!isNaN(spentTime)) {
+        setTimeSpent(spentTime);
+      } else {
+        console.error('Calculated time spent is NaN');
+      }
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+  
+
+
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
@@ -160,6 +207,11 @@ const QuillEditor = () => {
       console.error('Error submitting report:', err);
     } finally {
       closeModal();
+      socket.emit('track-activity', {
+        userId: user.id,
+        pageUrl: '/private/writereport',
+        buttonClicks: { 'reports': 1 },
+      });
     }
   };
 

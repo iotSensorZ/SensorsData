@@ -7,6 +7,9 @@ import { Textarea } from '@headlessui/react';
 import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { toast } from 'react-toastify'; // Make sure you have react-toastify installed
+import {io } from 'socket.io-client';
+const socket = io('http://localhost:3001');
+import { useActivityTracker } from '@/context/ActivityTracker';
 
 interface EmailModalProps {
   isOpen: boolean;
@@ -35,6 +38,50 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, closeModal }) => {
   const [selectedSenderEmail, setSelectedSenderEmail] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [timeSpent, setTimeSpent] = useState<number>(0); // Initialize with a default value
+
+
+
+
+  useEffect(() => {
+    console.log("Current user:", user);
+    if(!user)return;
+    console.log("inemail")
+    const activityData = {
+      userId: user.id, 
+      pageUrl: window.location.pathname,
+      buttonClicks: {}, 
+      timeSpent,
+      cursorPosition,
+      lastUpdated,
+    };
+  
+    socket.emit('track-activity', activityData);
+  }, [user,timeSpent, cursorPosition, lastUpdated]); 
+
+
+  useEffect(() => {
+    const startTime = Date.now();
+  
+    const handleMouseMove = (event: MouseEvent) => {
+      setCursorPosition({ x: event.clientX, y: event.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      const endTime = Date.now();
+      const spentTime = endTime - startTime;
+      if (!isNaN(spentTime)) {
+        setTimeSpent(spentTime);
+      } else {
+        console.error('Calculated time spent is NaN');
+      }
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+  
+
 
   useEffect(() => {
     if (!user) return;
@@ -88,6 +135,14 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, closeModal }) => {
         toast.success("Message Sent");
         reset();
         closeModal();
+        socket.emit('track-activity', {
+          userId: user.id,
+          pageUrl: '/private/inbox',
+          buttonClicks: { 'email sent': 1 },
+          timeSpent: timeSpent, 
+          cursorPosition, 
+          lastUpdated, 
+        });
       } else {
         const errorData = await response.json();
         console.error('Error sending email:', errorData);

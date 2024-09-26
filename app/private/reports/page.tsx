@@ -45,7 +45,7 @@ const ReportList = () => {
     if (user) { // Ensure user is not null
       const fetchReports = async () => {
         try {
-          const response = await axios.get('/api/documents');
+          const response = await axios.get('/api/documents', { params: { userId: user.id } });
           setReports(response.data.reports);
           console.log("user",user.id)
           console.log("user",response.data.reports)

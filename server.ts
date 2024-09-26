@@ -12,6 +12,25 @@ import { debounce } from 'lodash';
 const app = express();
 const server = http.createServer(app);
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  profilePicUrl: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface ActivityData {
+  userId: User; // Keep userId as type User
+  pageUrl: string;
+  buttonClicks: Record<string, number>;
+  timeSpent: number; 
+  cursorPosition: { x: number; y: number };
+  lastUpdated: Date;
+}
+
 
 // Enable CORS
 app.use(cors({
@@ -79,42 +98,60 @@ io.on('connection', (socket) => {
   });
 
 
-  // const handleActivityTracking = debounce(async (activityData: ActivityData) => {
-  //   const { userId, pageData } = activityData;
+  const handleActivityTracking = async (activityData: ActivityData) => {
+    const { userId, pageUrl, buttonClicks, timeSpent, cursorPosition } = activityData;
   
-  //   try {
-  //     const existingActivity = await UserActivity.findOne({ userId });
+    try {
+      const existingActivity = await UserActivity.findOne({ userId });
   
-  //     if (existingActivity) {
-  //       for (const [pageUrl, data] of Object.entries(pageData)) {
-  //         existingActivity.pageData.set(pageUrl, {
-  //           pageUrl, // Ensure pageUrl is included
-  //           visitCount: (existingActivity.pageData.get(pageUrl)?.visitCount || 0) + data.visitCount,
-  //           buttonClicks: {
-  //             ...existingActivity.pageData.get(pageUrl)?.buttonClicks,
-  //             ...data.buttonClicks,
-  //           },
-  //         });
-  //       }
-  //       await existingActivity.save();
-  //     } else {
-  //       const activity = new UserActivity({
-  //         userId,
-  //         pageData,
-  //       });
-  //       await activity.save();
-  //     }
+      if (existingActivity) {
+        const pageData = existingActivity.pageData.get(pageUrl);
   
-  //     console.log('Activity tracked successfully');
-  //   } catch (error) {
-  //     console.error('Error tracking activity:', error);
-  //   }
-  // }, 2000);
+        if (pageData) {
+          pageData.visitCount += 1;
   
+          Object.entries(buttonClicks).forEach(([button, count]) => {
+            pageData.buttonClicks.set(button, (pageData.buttonClicks.get(button) || 0) + count);
+          });
   
+          pageData.timeSpent += timeSpent;
   
-  // socket.on('track-activity', handleActivityTracking);
+          pageData.cursorPosition = cursorPosition;
   
+          pageData.lastUpdated = new Date();
+        } else {
+          existingActivity.pageData.set(pageUrl, {
+            pageUrl,
+            visitCount: 1,
+            buttonClicks: new Map(Object.entries(buttonClicks)), // Convert to Map
+            timeSpent,
+            cursorPosition,
+            lastUpdated: new Date(),
+          });
+        }
+  
+        await existingActivity.save();
+      } else {
+        const activity = new UserActivity({
+          userId,
+          pageData: new Map([[pageUrl, { 
+            pageUrl, 
+            visitCount: 1, 
+            buttonClicks: new Map(Object.entries(buttonClicks)), 
+            timeSpent,
+            cursorPosition,
+            lastUpdated: new Date(),
+          }]]),
+        });
+        await activity.save();
+      }
+    } catch (error) {
+      console.error('Error tracking activity:', error);
+    }
+  };
+  
+ 
+  socket.on('track-activity', handleActivityTracking);
   
   
   socket.on('disconnect', () => {
