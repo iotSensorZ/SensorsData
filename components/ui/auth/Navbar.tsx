@@ -102,37 +102,37 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({children}) => {
             </li> */}
           <li className='my-5'>
           <span className="font-semibold text-sm my-10 text-[#6BC9F7]">
-            <Link href='/private/dashboard'>
+            <Link href='/private/dashboard' prefetch={true}>
               {isSidebarOpen ? "Dashboard" : ("")} 
             </Link>
           </span>
           </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/storage')}`}>
-              <Link href="/private/storage" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/storage')}>
+              <Link href="/private/storage" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/storage')}>
                 <FaUsers className="mr-2" />
                 {isSidebarOpen && "Storage Space"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/reports')}`}>
-            <Link href="/private/reports"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/reports')}>
+            <Link href="/private/reports" prefetch={true}className="flex items-center w-full" onClick={() => handleSidebarItemClick('/reports')}>
                   <FaFileAlt className="mr-2" />
                   {isSidebarOpen && "Reports"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/writereport')}`}>
-            <Link href="/private/writereport" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/writereport')}>
+            <Link href="/private/writereport" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/writereport')}>
                   <FaFileSignature className="mr-2" />
                   {isSidebarOpen && "Write Report"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/codeeditor')}`}>
-            <Link href="/private/codeeditor" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/codeeditor')}>
+            <Link href="/private/codeeditor" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/codeeditor')}>
                   <FaFileSignature className="mr-2" />
                   {isSidebarOpen && "Code Editor"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/resources')}`}>
-            <Link href="/private/resources" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/resources')}>
+            <Link href="/private/resources" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/resources')}>
                   <Globe className="mr-2" />
                   {isSidebarOpen && "Resources"}
               </Link>
@@ -143,37 +143,37 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({children}) => {
           </span>
           </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/mycalendar')}`}>
-            <Link href="/private/mycalendar" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/mycalendar')}>
+            <Link href="/private/mycalendar" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/mycalendar')}>
                   <FaCalendarAlt className="mr-2" />
                   {isSidebarOpen && "My Calendar"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/inbox')}`}>
-            <Link href="/private/inbox"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/inbox')}>
+            <Link href="/private/inbox" prefetch={true}className="flex items-center w-full" onClick={() => handleSidebarItemClick('/inbox')}>
                   <FaInbox className="mr-2" />
                   {isSidebarOpen && "My Inbox"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/messanger')}`}>
-            <Link href="/private/messanger"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/messanger')}>
+            <Link href="/private/messanger" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/messanger')}>
                   <FaRocketchat className="mr-2" />
                   {isSidebarOpen && "Messanger"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/contacts')}`}>
-            <Link href="/private/contacts"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/contacts')}>
+            <Link href="/private/contacts" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/contacts')}>
                   <FaPhone className="mr-2" />
                   {isSidebarOpen && "Contacts"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-centerss ${isLinkActive('/notes')}`}>
-            <Link href="/private/notes"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/notes')}>
+            <Link href="/private/notes" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/notes')}>
                   < FaRegWindowRestore className="mr-2" />
                   {isSidebarOpen && "Notes"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/tasks')}`}>
-            <Link href="/private/tasks"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/tasks')}>
+            <Link href="/private/tasks" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/tasks')}>
                   <FaTasks className="mr-2" />
                   {isSidebarOpen && "Tasks"}
               </Link>
@@ -184,20 +184,20 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({children}) => {
           </span>
           </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/myprofile')}`}>
-            <Link href="/private/myprofile"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/myprofile')}>
+            <Link href="/private/myprofile" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/myprofile')}>
                   <FaUserAlt className="mr-2" />
                   {isSidebarOpen && "My Profile"}
               </Link>
             </li>
           
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/changepassword')}`}>
-            <Link href="/changepassword"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/changepassword')}>
+            <Link href="/changepassword" prefetch={true} className="flex items-center w-full" onClick={() => handleSidebarItemClick('/changepassword')}>
                   <FaKey className="mr-2" />
                   {isSidebarOpen && "Change Password"}
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/logout')}`}>
-            <Link href="/logout"className="flex items-center w-full" onClick={() => handleSidebarItemClick('/logout')}>
+            <Link href="/logout" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/logout')}>
                   <FaSignOutAlt className="mr-2" />
                   {isSidebarOpen && "Logout"}
               </Link>

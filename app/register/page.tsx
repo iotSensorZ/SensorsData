@@ -27,7 +27,7 @@ if(user)redirect('/private/dashboard');
             </Label>
             <Input
               id="firstname"
-              placeholder="Shin"
+              placeholder="Dan"
               type="text"
               name="firstname"
             />
@@ -38,7 +38,7 @@ if(user)redirect('/private/dashboard');
             </Label>
             <Input
               id="lastname"
-              placeholder="chan"
+              placeholder="Luca"
               type="text"
               name="lastname"
             />

@@ -32,25 +32,20 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
 const CardNum = () => {
   const [reports, setReports] = useState<any[]>([]);
-  const [files, setFiles] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
   const [reponum, setReponum] = useState<any>('0');
-  const [filenum, setFilenum] = useState<any>('0');
-  const [eventnum, setEventnum] = useState<any>('0');
-  const [inboxnum, setInboxnum] = useState<any>('0');
-  const [error, setError] = useState<string>('');
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentInbox, setCurrentInbox] = useState<string | null>(null);
   // const [userName, setUserName] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   // const [userProfile, setuserProfile] = useState('')
   const [folders, setFolders] = useState<any[]>([]); // Updated type to `any[]` to reflect folder objects
-  const [userName, setUserName] = useState<string | null>(() => localStorage.getItem('userName'));
-  const [userProfile, setuserProfile] = useState<string | null>(() => localStorage.getItem('userProfile'));
-  const [loadingProfile, setLoadingProfile] = useState(true);
   const router = useRouter();
   const [filteredReports, setFilteredReports] = useState<Report[]>([]);
+  const [folderCount, setFolderCount] = useState<number>(0);
+  const [reportCount, setReportCount] = useState<number>(0);
+  const [eventCount, setEventCount] = useState<number>(0);
+  const [taskCount, setTaskCount] = useState<number>(0);
 
   const { data: session,status } = useSession();
 
@@ -92,7 +87,8 @@ const CardNum = () => {
     try {
       const response = await axios.get(`/api/folders?userId=${session?.user.id}`);
       const folders = response.data.folders;
-      setFolders(folders.slice(0,5)); 
+      setFolders(folders.slice(0,5));
+      setFolderCount(folders.length);  
       console.log("Fetched folders:", response.data.folders);
     } catch (error) {
       console.error("Error fetching folders:", error);
@@ -110,6 +106,10 @@ const CardNum = () => {
   const handleFolderClick = (folderName: string) => {
     router.push(`/private/storage/${folderName}`);
   };
+  const handleEventClick = (eventName: string) => {
+    router.push(`/private/mycalendar`);
+  };
+
 
 
   const {user} = useUser();
@@ -125,6 +125,8 @@ const CardNum = () => {
 
         //   user && user.id === report.ownerId 
           setFilteredReports(allReports.slice(0,5));
+      setReportCount(allReports.length);  
+
         } catch (error) {
           console.error('Error fetching reports:', error);
         }
@@ -132,6 +134,46 @@ const CardNum = () => {
 
       fetchReports();
     }
+  }, [user]);
+
+
+  useEffect(() => {
+    fetchEvents();
+  }, [user]);
+
+  const fetchEvents = async () => {
+    try {
+      if (!user) return;
+
+      const response = await fetch(`/api/events?userId=${user.id}` );
+      const data = await response.json();
+      setEvents(data);
+      setEventCount(data.length);  
+
+    } catch (err) {
+      console.error('Error fetching events:', err);
+    }
+  };
+
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+        if (!user) return;
+        try {
+            const response = await fetch(`/api/tasks?userId=${user.id}`);
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            setTaskCount(data.length);
+        } catch (error) {
+            toast.error('Failed to fetch tasks');
+            console.error('Error fetching tasks: ', error);
+        }
+    };
+    
+    fetchTasks();
   }, [user]);
 
 
@@ -166,7 +208,7 @@ const CardNum = () => {
       <div className='flex justify-center items-center'>
               <Image src={Reportsvg} alt='repo' width={60} height={60} />
             </div>
-      <div className='text-xl font-medium text-center'>{reponum}
+      <div className='text-xl font-medium text-center'>{reportCount}
               <p className='text-lg '>Reports</p>
               <CardDescription className='font-medium'>written</CardDescription>
             </div>
@@ -177,9 +219,9 @@ const CardNum = () => {
       <div className='flex justify-center items-center'>
              <Image src={filesvg} alt='repo' width={60} height={60} />
             </div>
-      <div className='text-xl font-medium text-center'>{reponum}
-              <p className='text-lg '>Files</p>
-              <CardDescription className='font-medium'>written</CardDescription>
+      <div className='text-xl font-medium text-center'>{folderCount}
+              <p className='text-lg '>Folders</p>
+              <CardDescription className='font-medium'>gallery</CardDescription>
             </div>
       <div className='flex text-end'><Grip className='' /></div>
       </div>
@@ -188,9 +230,9 @@ const CardNum = () => {
       <div className='flex justify-center items-center'>
       <Image src={eventsvg} alt='repo' width={60} height={60} />
             </div>
-      <div className='text-xl font-medium text-center'>{reponum}
+      <div className='text-xl font-medium text-center'>{eventCount}
               <p className='text-lg '>Events</p>
-              <CardDescription className='font-medium'>written</CardDescription>
+              <CardDescription className='font-medium'>due</CardDescription>
             </div>
       <div className='flex text-end'><Grip className='' /></div>
       </div>
@@ -199,9 +241,9 @@ const CardNum = () => {
       <div className='flex justify-center items-center'>
       <Image src={inboxsvg} alt='repo' width={60} height={60} />
             </div>
-      <div className='text-xl font-medium text-center'>{reponum}
-              <p className='text-lg '>Inbox</p>
-              <CardDescription className='font-medium'>written</CardDescription>
+      <div className='text-xl font-medium text-center'>{taskCount}
+              <p className='text-lg '>Tasks</p>
+              <CardDescription className='font-medium'>pending</CardDescription>
             </div>
       <div className='flex text-end'><Grip className='' /></div>
       </div>
@@ -228,13 +270,13 @@ const CardNum = () => {
                   <TableBody className=''>
                     <TableRow>
                   <TableCell>
-                      {folders.map((folder) => (
+                  {folders.map((folder) => (
                         <div
                         key={folder._id}  
                         className="text-center bg-white p-2 m-2 shadow-md rounded-lg cursor-pointer"
                         onClick={() => handleFolderClick(folder.name)} 
                         >
-            <span className=" m-2 text-slate-700">{folder.name}</span>  {/* Render folder.name instead of the entire folder object */}
+            <span className=" m-2 text-slate-700">{folder.name}</span>  
           </div>
         ))}
         </TableCell>
@@ -252,47 +294,19 @@ const CardNum = () => {
         </TableCell>
 <TableCell>
 
-                      {folders.map((folder) => (
+
+         {events.map((event) => (
                         <div
-                        key={folder._id}  
+                        key={event._id}  
                         className="text-center bg-white p-2 m-2 shadow-md rounded-lg cursor-pointer"
-                        onClick={() => handleFolderClick(folder.name)} 
+                        onClick={() => handleEventClick(event.title)} 
                         >
-            <span className=" m-2 text-slate-700">{folder.name}</span>  {/* Render folder.name instead of the entire folder object */}
+            <span className=" m-2 text-slate-700">{event.title}</span>  {/* Render folder.name instead of the entire folder object */}
           </div>
         ))}
         </TableCell>
                     </TableRow>
-                    <TableRow>
-                      <TableCell>John Doe</TableCell>
-                      {/* <TableCell>john@example.com</TableCell> */}
-                      <TableCell>Pro</TableCell>
-                      <TableCell>2024-04-16</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>John Doe</TableCell>
-                      {/* <TableCell>john@example.com</TableCell> */}
-                      <TableCell>Pro</TableCell>
-                      <TableCell>2024-04-16</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>John Doe</TableCell>
-                      {/* <TableCell>john@example.com</TableCell> */}
-                      <TableCell>Pro</TableCell>
-                      <TableCell>2024-04-16</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>John Doe</TableCell>
-                      {/* <TableCell>john@example.com</TableCell> */}
-                      <TableCell>Pro</TableCell>
-                      <TableCell>2024-04-16</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>John Doe</TableCell>
-                      {/* <TableCell>john@example.com</TableCell> */}
-                      <TableCell>Pro</TableCell>
-                      <TableCell>2024-04-16</TableCell>
-                    </TableRow>
+                   
                   </TableBody>
                 </Table>
             </div>
