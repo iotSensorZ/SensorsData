@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState, Fragment, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
@@ -10,9 +10,10 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'; // Import pdf-lib
 import { htmlToText } from 'html-to-text';
 import { Dialog, Transition } from '@headlessui/react';
 import { useUser } from '@/context/UserContext';
-import {io } from 'socket.io-client';
+import { io } from 'socket.io-client';
 const socket = io('http://localhost:3001');
 import { useActivityTracker } from '@/context/ActivityTracker';
+import { FaFileSignature } from "@react-icons/all-files/fa/FaFileSignature";
 
 // Custom toolbar for Quill
 const modules = {
@@ -46,6 +47,7 @@ const QuillEditor = () => {
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [recentReports, setRecentReports] = useState<any[]>([]); // State to manage recent reports
   const { user } = useUser();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false); // State for modal
@@ -54,31 +56,32 @@ const QuillEditor = () => {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [timeSpent, setTimeSpent] = useState<number>(0); // Initialize with a default value
 
-
+  // Track user activity
   useEffect(() => {
-    console.log("Current user:", user);
-    if(!user)return;
-    console.log("inquill")
+    if (!user) return;
+    
     const activityData = {
-      userId: user.id, 
+      userId: user.id,
       pageUrl: window.location.pathname,
-      buttonClicks: {}, 
+      buttonClicks: {},
       timeSpent,
       cursorPosition,
       lastUpdated,
     };
-  
+
     socket.emit('track-activity', activityData);
-  }, [user,timeSpent, cursorPosition, lastUpdated]); 
+  }, [user, timeSpent, cursorPosition, lastUpdated]);
 
-
+  // Track mouse movement and time spent
   useEffect(() => {
     const startTime = Date.now();
-  
+    
     const handleMouseMove = (event: MouseEvent) => {
       setCursorPosition({ x: event.clientX, y: event.clientY });
     };
+    
     window.addEventListener('mousemove', handleMouseMove);
+    
     return () => {
       const endTime = Date.now();
       const spentTime = endTime - startTime;
@@ -90,15 +93,44 @@ const QuillEditor = () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
-  
 
-
-
+  // Open and close modal
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
   const handleChange = (value: string) => {
     setEditorState(value);
+  };
+
+  // Fetch recent reports
+  useEffect(() => {
+    if (user) {
+      const fetchReports = async () => {
+        try {
+          const response = await axios.get('/api/generatePDF', { params: { userId: user.id } });
+  
+          // Filter and sort reports by ownerUserId and createdAt in descending order
+          const myReports = response.data.reports.filter((report: { userId: string }) => report.userId === user.id);
+          
+          const sortedReports = myReports.sort((a: { createdAt: string }, b: { createdAt: string }) => {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // Most recent first
+          });
+  
+          setRecentReports(sortedReports);
+        } catch (error) {
+          console.error('Error fetching reports:', error);
+        }
+      };
+  
+      fetchReports();
+    }
+  }, [user]);
+  
+  
+
+  const handleReportClick = (report: any) => {
+    setTitle(report.title);
+    setEditorState(report.content); // Fill the editor with the selected report content
   };
 
   const generatePDF = async (title: string, html: string) => {
@@ -185,18 +217,18 @@ const QuillEditor = () => {
       toast.error('User not logged in');
       return;
     }
-  
+
     try {
       const quillEditor = document.querySelector('.ql-editor') as HTMLElement;
       const html = quillEditor.innerHTML;
-  
+
       const response = await axios.post('/api/documents/', {
         title,
         content: html,
         userId: user.id,
         isPublic,
       });
-  
+
       if (response.status === 201) {
         toast.success('Document saved successfully');
       } else {
@@ -212,6 +244,7 @@ const QuillEditor = () => {
         pageUrl: '/private/writereport',
         buttonClicks: { 'reports': 1 },
       });
+      router.push("/private/reports")
     }
   };
 
@@ -241,118 +274,144 @@ const QuillEditor = () => {
 
   return (
     <>
-    
-    <div className="toolbar flex justify-end mx-4 ">
-      <Button variant="blue" type="button" onClick={openModal} className="mt-4 text-white py-2 px-4 rounded-md shadow-sm">
-        Save Your Report
-      </Button>
-      {loading && (
-        <div className="flex justify-center items-center mt-4">
-          <div className="loader border-t-4 border-blue-500 border-solid rounded-full w-8 h-8 animate-spin"></div>
+      <div className="flex gap-2">
+        {/* Sidebar for Recent Reports */}
+        <div className="w-1/5 p-4 border-r border-gray-100 bg-white">
+          <h2 className="text-lg font-semibold mb-4">Recent Reports</h2>
+          <ul>
+            {recentReports.map((report) => (
+              <li key={report._id} className="mb-2 border-b-2 ">
+                <button
+                  className="text-slate-500 font-medium hover:underline flex gap-3"
+                  onClick={() => handleReportClick(report)}
+                >
+                 <FaFileSignature/> {report.title}
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
-      {/* <Button variant="blue" type="button" onClick={handleParaphrase} className="mt-4 text-white py-2 px-4 rounded-md shadow-sm">
-        Generate Suggestions
-      </Button> */}
+
+        {/* Editor Area */}
+        
+
+        <div>
+        <div className="toolbar flex justify-end mx-4">
+  <Button 
+    variant="blue" 
+    type="button" 
+    onClick={openModal} 
+    className="m-4 text-white py-2 px-4 rounded-md shadow-sm"
+  >
+    Save Your Report
+  </Button>
+  {loading && (
+    <div className="flex justify-center items-center mt-4">
+      <div className="loader border-t-4 border-blue-500 border-solid rounded-full w-8 h-8 animate-spin"></div>
     </div>
+  )}
+</div>
 
 
-    <div className="quill-editor-container p-4 justify-center align-middle text-center">
-    <Toaster />
-    <div className="flex-1 overflow-hidden p-4 flex justify-center h-screen">
-      <ReactQuill
-        value={editorState}
-        onChange={handleChange}
-        modules={modules}
-        formats={formats}
-        className='bg-white p-20 border rounded-xl'
-        style={{ padding: '20px' }}
-      />
-    </div>
+        <div className="flex-1 p-0 justify-center align-middle text-center h-screen">
+          
+          <Toaster />
+          <div className="flex-1 overflow-hidden flex justify-center h-full m-2">
+            <ReactQuill
+              value={editorState}
+              onChange={handleChange}
+              modules={modules}
+              formats={formats}
+              className='bg-white p-5 rounded-xl'
+            />
+          </div>
 
-  
-    {suggestions.length > 0 && (
-      <div className="suggestions-container mt-4 shadow-lg rounded-lg p-4">
-        <h3 className="text-lg font-medium text-gray-700 mb-2">Suggestions</h3>
-        <ul>
-          {suggestions.map((suggestion, index) => (
-            <li
-              key={index}
-              className="cursor-pointer p-2 rounded-md bg-green-50 mb-2 text-blue-500 hover:bg-blue-100 transition"
-              onClick={() => handleSuggestionClick(suggestion)}
-            >
-              {suggestion}
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={closeModal}>
-        <div className="min-h-screen px-4 text-center">
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-
-          <span className="inline-block h-screen align-middle" aria-hidden="true">
-            &#8203;
-          </span>
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
-          >
-            <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-              <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                Enter Report Title
-              </Dialog.Title>
-              <div className="mt-2">
-                <input
-                  type="text"
-                  id="modal-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                  placeholder="Title"
-                />
-              </div>
-              
-
-              <div className="mt-4">
-                <Button
-                  variant="blue"
-                  onClick={handleSubmit}
-                  className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-                >
-                  Save
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={closeModal}
-                  className="inline-flex justify-center px-4 py-2 ml-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
-                >
-                  Cancel
-                </Button>
-              </div>
+          {/* Suggestions Container */}
+          {suggestions.length > 0 && (
+            <div className="suggestions-container mt-4 shadow-lg rounded-lg p-4">
+              <h3 className="text-lg font-medium text-gray-700 mb-2">Suggestions</h3>
+              <ul>
+                {suggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className="cursor-pointer p-2 rounded-md bg-green-50 mb-2 text-blue-500 hover:bg-blue-100 transition"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
             </div>
-          </Transition.Child>
+          )}
+          
+          {/* Modal for Saving Report */}
+          <Transition appear show={isOpen} as={Fragment}>
+            <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={closeModal}>
+              <div className="min-h-screen px-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0"
+                  enterTo="opacity-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100"
+                  leaveTo="opacity-0"
+                >
+                  <div className="fixed inset-0 bg-black bg-opacity-25" />
+                </Transition.Child>
+
+                <span className="inline-block h-screen align-middle" aria-hidden="true">
+                  &#8203;
+                </span>
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+                    <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                      Enter Report Title
+                    </Dialog.Title>
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        id="modal-title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="mt-1 block w-full px-3 py-2 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        placeholder="Title"
+                      />
+                    </div>
+                    
+                    <div className="mt-4">
+                      <Button
+                        variant="blue"
+                        onClick={handleSubmit}
+                        className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={closeModal}
+                        className="inline-flex justify-center px-4 py-2 ml-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </Transition.Child>
+              </div>
+            </Dialog>
+          </Transition>
         </div>
-      </Dialog>
-    </Transition>
-  </div>
-  </>
+      </div>
+      </div>
+    </>
   );
 };
 

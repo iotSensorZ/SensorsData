@@ -197,7 +197,7 @@ const Sidebar: React.FC<{ children: React.ReactNode }> = ({children}) => {
               </Link>
             </li>
             <li className={`text-sm text-gray-300 p-4 mb-2 hover:bg-slate-800 hover:text-white hover:font-medium hover:rounded-lg flex items-center ${isLinkActive('/logout')}`}>
-            <Link href="/logout" className="flex items-center w-full" onClick={() => handleSidebarItemClick('/logout')}>
+            <Link href="/logout" className="flex items-center w-full" onClick={handleLogout}>
                   <FaSignOutAlt className="mr-2" />
                   {isSidebarOpen && "Logout"}
               </Link>

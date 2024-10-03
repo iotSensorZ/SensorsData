@@ -5,22 +5,33 @@ import { Document } from '@/models/Document';
 connectDB();
 
 export async function GET(req: NextRequest) {
-    try {
+  try {
       const { searchParams } = new URL(req.url);
-        const userId = searchParams.get('userId');
-        if (!userId) {
+      const userId = searchParams.get('userId'); // Selected user ID
+      const currentUserId = req.headers.get('current-user-id'); // Get current user ID from headers
+
+      if (!userId) {
           console.log('No user ID provided'); // Debugging log
           return NextResponse.json({ message: 'No user ID provided' }, { status: 400 });
       }
 
       const reports = await Document.find({});
-      const filteredReports = reports.filter(report => report.isPublic || report.userId.toString() === userId);
-      return NextResponse.json({ reports:filteredReports }, { status: 200 });
-    } catch (error) {
+
+      const filteredReports = reports.filter(report => {
+          if (userId === currentUserId) {
+              return report.userId.toString() === currentUserId;
+          } else {
+              return report.userId.toString() === userId && report.isPublic;
+          }
+      });
+
+      return NextResponse.json({ reports: filteredReports }, { status: 200 });
+  } catch (error) {
       console.error('Error fetching reports:', error);
       return NextResponse.json({ message: 'Error fetching reports' }, { status: 500 });
-    }
+  }
 }
+
 
 
 export async function POST(req: NextRequest) {
