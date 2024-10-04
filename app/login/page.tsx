@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
+import { toast, Toaster } from 'sonner';
 
 const Login = () => {
   const router = useRouter();
@@ -35,6 +36,7 @@ const Login = () => {
     });
 
     if (result?.ok) {
+      toast.success('Login Successful');
       router.push("/private/dashboard");
     } else {
       console.error("Login failed");
@@ -51,6 +53,7 @@ const Login = () => {
 
   return (
     <div className="mt-10 max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white border border-[#121212] dark:bg-black">
+     <Toaster/>
       <form onSubmit={handleSubmit} className="my-8">
         <Label htmlFor="email">Email Address</Label>
         <Input id="email" placeholder="abc@gmail.com" type="email" name="email" />

@@ -10,51 +10,22 @@ let socket: Socket;
 
 const ClientSideLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-  const noLayout = ['/login', '/register', '/changepassword'].includes(pathname);
+  const noLayout = ['/login', '/register'].includes(pathname);
   const router = useRouter();
 
-  const { data: session } = useSession();
-
-
-  
-  useEffect(() => {
-    if (session?.user) {
-      router.push("/private/dashboard");
-    }
-  }, [router]);
+  const { data: session,status } = useSession();
 
   useEffect(() => {
+    if (status === 'loading') return;
+
     if (session?.user) {
-      router.push("/private/dashboard");
-    } else if (!noLayout) {
+      if (noLayout) {
+        router.push("/private/dashboard");
+      }
+    } else if (!session?.user && !noLayout) {
       router.push('/login');
     }
-    //initialise
-    // socket = io();
-
-    // socket.on('connect', () => {
-    //   console.log('Connected to WebSocket server with ID:', socket.id);
-    // });
-
-    // Remove unwanted attributes added by extensions
-    const cleanUpAttributes = () => {
-      if (typeof document !== 'undefined') {
-        document.body.removeAttribute('cz-shortcut-listen');
-      }
-    };
-
-    cleanUpAttributes(); // Run cleanup on mount
-
-    const intervalId = setInterval(cleanUpAttributes, 1000); // Periodic cleanup
-
-    return () =>{ 
-
-      clearInterval(intervalId);
-      // if(socket){
-      //   socket.disconnect()
-      // }
-    } 
-  }, []);
+  }, [router, session, noLayout]);
 
   return noLayout ? <>{children}</> : <Navbar>{children}</Navbar>;
 };

@@ -280,7 +280,7 @@ const QuillEditor = () => {
           <h2 className="text-lg font-semibold mb-4">Recent Reports</h2>
           <ul>
             {recentReports.map((report) => (
-              <li key={report._id} className="mb-2 border-b-2 ">
+              <li key={report._id} className="mb-4 border-b-2 ">
                 <button
                   className="text-slate-500 font-medium hover:underline flex gap-3"
                   onClick={() => handleReportClick(report)}

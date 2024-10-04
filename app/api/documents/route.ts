@@ -7,6 +7,7 @@ connectDB();
 export async function GET(req: NextRequest) {
   try {
       const { searchParams } = new URL(req.url);
+      const id = searchParams.get('id');
       const userId = searchParams.get('userId'); // Selected user ID
       const currentUserId = req.headers.get('current-user-id'); // Get current user ID from headers
 

@@ -140,8 +140,10 @@ const ReportList = () => {
   };
 
   const handleUserClick = (userId: string) => {
-    setSelectedUserId(userId); // Set the selected user ID
-    setSearchTerm(''); // Clear search when a user is selected
+    // setSelectedUserId(userId); // Set the selected user ID
+    // setSearchTerm(''); // Clear search when a user is selected
+    router.push(`/private/reports/user/${userId}`);
+
   };
 
   const handleToggleVisibility = async (reportId: string, currentVisibility: boolean) => {

@@ -39,14 +39,11 @@ const ReportDetailPage: React.FC = () => {
   useEffect(() => {
     const fetchReport = async () => {
       try {
-        const response = await axios.get(`/api/documents?id=${id}`);
-        console.log("API Response:", response.data);
-        if (response.status === 200 && response.data.reports.length > 0) {
-          setReport(response.data.reports[0]);  
-          const fetchedReport = response.data.reports.find((r: Report) => r._id === id);
-          await handleGeneratePdf(fetchedReport.content)
-          console.log("Fetched Report:", fetchedReport);  
-          setReport(fetchedReport || null);
+        const response = await axios.get(`/api/reports/${id}`); // Updated to use the new route
+        console.log("API Response:", response.data); 
+        await handleGeneratePdf(response.data.report.content); 
+        if (response.status === 200) {
+          setReport(response.data.report);
         } else {
           console.error('No such document!');
         }
@@ -57,9 +54,10 @@ const ReportDetailPage: React.FC = () => {
         setLoading(false);
       }
     };
-
+  
     if (id) fetchReport();
   }, [id]);
+  
 
   const handleGeneratePdf = async (content: string) => {
     if (content) {
